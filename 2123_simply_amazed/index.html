@@ -1,0 +1,1843 @@
+<!doctype html>
+<html lang="en">
+<head>  <!-- 헤드 부분. 메타 데이터가 포함되어 있음.-->
+    <meta charset="utf-8" />
+    <title>Simply Amazed HTML Template by Tooplate</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="fontawesome/css/all.min.css" type="text/css" /> 
+    <link rel="stylesheet" href="css/slick.css" type="text/css" />   
+    <link rel="stylesheet" href="css/tooplate-simply-amazed.css" type="text/css" />
+    <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <style>
+        input, textarea, button {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            color: #333; /*font color*/
+        }
+        #reply {
+            background-color: #f0f0f0;
+        }
+        
+        /* 체크리스트 스타일 */
+        .checklist-section {
+            background-color: #f8f9fa;
+            padding: 60px 0;
+        }
+        
+        .checkbox-img {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .checkbox-img:hover {
+            transform: scale(1.2);
+        }
+        
+        .table th, .table td {
+            vertical-align: middle;
+        }
+        
+        .filter-container {
+            margin-bottom: 20px;
+        }
+        
+        /* 남은 시간 스타일 */
+        .deadline-date {
+            font-weight: 500;
+        }
+        
+        .text-danger {
+            color: #dc3545 !important;
+        }
+        
+        .font-weight-bold {
+            font-weight: 700 !important;
+        }
+        
+        /* 접수일 스타일 */
+        .receipt-date-today {
+            color: #28a745 !important;
+            font-weight: 700;
+        }
+        
+        /* 중요 업무 스타일 수정 - 테두리 제거 */
+        .task-important {
+            color: #ffc107 !important; /* 노란색 글씨 유지 */
+            padding: 3px 6px;
+            font-weight: 500;
+            cursor: pointer; /* 마우스 포인터 변경 */
+        }
+        
+        .task-important:hover {
+            background-color: rgba(255, 193, 7, 0.2); /* 황금색 배경으로 변경 */
+            text-decoration: underline; /* 밑줄 추가 */
+        }
+        
+        /* 업무 내용 클릭 가능 스타일 제거 */
+        .task-content {
+            padding: 3px 6px;
+            cursor: pointer; /* 마우스 포인터 변경 */
+            transition: background-color 0.2s;
+            border-radius: 4px;
+        }
+        
+        .task-content:hover {
+            background-color: rgba(0, 123, 255, 0.1); /* 마우스 오버 시 배경색 변경 */
+            text-decoration: underline; /* 밑줄 추가 */
+        }
+        
+        /* 방해금지모드 관련 스타일 */
+        .dnd-toggle-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+        }
+        
+        #dnd-toggle.active {
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+        
+        #dnd-icon-left, #dnd-icon-right {
+            color: #ff5252;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        /* Our Service 섹션의 아이템 위치 조정 */
+        .work-section .item:nth-child(1) {
+            margin-top: 0;
+        }
+        
+        .work-section .item:nth-child(2) {
+            margin-top: 30px;
+        }
+        
+        .work-section .item:nth-child(3) {
+            margin-top: 60px;
+        }
+        
+        .work-section .item:nth-child(4) {
+            margin-top: 90px;
+        }
+        
+        .work-section .item:nth-child(5) {
+            margin-top: 120px;
+        }
+        
+        .work-section .item:nth-child(6) {
+            margin-top: 150px;
+        }
+        
+        /* FAQ 질문 박스 스타일 수정 - 더 밝은 색상으로 변경 */
+        .question-box {
+            background-color: #f9f9f9; /* 흰색에 가까운 매우 밝은 회색 */
+            color: #333; /* 어두운 회색 텍스트 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            height: 200px; /* 높이 통일 */
+            padding: 20px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .question-box h4 {
+            font-size: 18px;
+            line-height: 1.4;
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        /* 기존 Julia 효과 유지하되 배경색도 밝게 변경 */
+        figure.effect-julia {
+            background: #f9f9f9; /* 배경색도 밝은 색으로 통일 */
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        
+        figure.effect-julia .question-box {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* 답변 영역 스타일 수정 */
+        figure.effect-julia figcaption {
+            padding: 2em;
+            background-color: rgba(0, 0, 0, 0.85); /* 답변 배경색 어둡게 */
+        }
+        
+        figure.effect-julia p {
+            margin-bottom: 10px;
+            font-size: 14px; /* 텍스트 크기 줄임 */
+            line-height: 1.4;
+        }
+        
+        figure.effect-julia figcaption > div {
+            width: 100%; /* 답변 영역 너비 확장 */
+        }
+        
+        /* 슬라이더 크기 조정 */
+        .gallery-section .mx-auto.gallery-slider {
+            max-width: 900px; /* 너비 증가 */
+            margin: 0 auto;
+        }
+        
+        /* 슬라이더 화살표 위치 조정 */
+        .gallery-slider .slick-prev {
+            left: -50px;
+        }
+        
+        .gallery-slider .slick-next {
+            right: -50px;
+        }
+        
+        /* 날짜 입력 컨테이너 스타일 */
+        .date-input-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        #custom-date {
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            width: auto;
+        }
+        
+        #reset-date {
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        #reset-date:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* FAQ 질문 박스 스타일 문제 해결 */
+        .gallery-section figure.effect-julia .question-box {
+            background-color: #f9f9f9 !important; /* 밝은 회색 배경 강제 적용 */
+            color: #333 !important; /* 텍스트 색상 강제 적용 */
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        /* 백그라운드 효과 덮어쓰기 */
+        figure.effect-julia {
+            background: #f9f9f9 !important; /* 밝은 색상 강제 적용 */
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        
+        /* 기존 Julia 효과 조정 - 검은 배경색 제거 */
+        figure.effect-julia::before {
+            background: transparent !important;
+        }
+        
+        /* 답변 영역 너비 대폭 증가 */
+        .gallery-section .mx-auto.gallery-slider {
+            max-width: 1200px; /* 갤러리 전체 너비 증가 */
+            margin: 0 auto;
+        }
+        
+        figure.effect-julia figcaption {
+            padding: 2em;
+            background-color: rgba(0, 0, 0, 0.85);
+            width: 100%; /* 답변 영역 너비 100% */
+            max-width: 100%; /* 최대 너비 제한 해제 */
+        }
+        
+        /* 답변 내용 스타일 개선 */
+        figure.effect-julia figcaption div {
+            width: 100%;
+            max-width: 100%;
+            padding: 0 20px;
+        }
+        
+        /* 슬라이더 화살표 위치 조정 */
+        .gallery-slider .slick-prev {
+            left: -60px;
+        }
+        
+        .gallery-slider .slick-next {
+            right: -60px;
+        }
+        
+        /* 이미지 효과 초기화 (필요시) */
+        figure.effect-julia img {
+            display: none; /* 숨겨진 이미지 요소 제거 */
+        }
+        
+        /* FAQ 섹션 새 스타일 */
+        .faq-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .faq-item {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .faq-question {
+            font-size: 22px;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 600;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+        }
+        
+        .faq-answer {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        .faq-answer p {
+            margin-bottom: 10px;
+        }
+        
+        /* 배경색이 어두워 텍스트가 잘 보이게 조정 */
+        .gallery-section {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        
+        /* FAQ 섹션 제목 색상 조정 */
+        .gallery-section .title h2 {
+            color: white;
+        }
+        
+        /* 섹션 높이 및 반응형 개선 */
+        .section {
+            min-height: 100vh;
+            padding: 100px 0;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 50px; /* 섹션 간 여백 추가 */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* 섹션 구분선 추가 */
+        }
+        
+        /* 섹션별 개별 여백 조정 */
+        .banner-section {
+            min-height: calc(100vh - 50px);
+            padding: 120px 0 100px;
+            margin-bottom: 80px;
+        }
+        
+        .work-section {
+            min-height: calc(120vh - 50px); /* 작업 섹션은 내용이 많아 더 높게 설정 */
+            padding: 120px 0 150px;
+            margin-bottom: 100px;
+        }
+        
+        .checklist-section {
+            min-height: calc(100vh - 50px);
+            padding: 120px 0 150px;
+            margin-bottom: 80px;
+        }
+        
+        .workspace-section {
+            min-height: calc(100vh - 50px);
+            padding: 120px 0 150px;
+            margin-bottom: 100px;
+        }
+        
+        .gallery-section {
+            min-height: calc(100vh - 50px);
+            padding: 120px 0 150px;
+            margin-bottom: 80px;
+        }
+        
+        .contact-section {
+            min-height: calc(80vh - 50px);
+            padding: 100px 0 120px;
+            margin-bottom: 0;
+            border-bottom: none;
+        }
+        
+        /* 배경 이미지가 있는 섹션의 z-index 조정 */
+        .parallax-window {
+            z-index: 1;
+            position: relative;
+        }
+        
+        /* 섹션 컨테이너 내 내용 래핑 */
+        .section-content-wrapper {
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* 반응형: 큰 화면에서 섹션 간 여백 더 크게 */
+        @media (min-width: 1200px) {
+            .section {
+                margin-bottom: 80px;
+                padding: 150px 0;
+            }
+            
+            .work-section {
+                min-height: calc(130vh - 80px);
+                padding: 150px 0 180px;
+                margin-bottom: 120px;
+            }
+        }
+        
+        /* 반응형: 작은 화면에서 섹션 간 여백 줄이기 */
+        @media (max-width: 767px) {
+            .section {
+                min-height: auto;
+                padding: 80px 0;
+                margin-bottom: 30px;
+            }
+        }
+        
+        /* 섹션 높이를 뷰포트에 따라 자동 조정 */
+        @media (max-height: 800px) {
+            .section {
+                min-height: auto;
+                padding: 100px 0;
+            }
+        }
+        
+        /* 배너 섹션 높이 조정 */
+        .banner-section {
+            min-height: 100vh;
+            padding: 120px 0;
+        }
+        
+        /* 작업 섹션 높이 조정 */
+        .work-section {
+            min-height: 110vh; /* 내용이 많아 더 높게 설정 */
+            padding: 100px 0;
+        }
+        
+        /* 체크리스트 섹션 높이 조정 */
+        .checklist-section {
+            min-height: 100vh;
+            padding: 80px 0 100px;
+        }
+        
+        /* 작업실 섹션 높이 조정 */
+        .workspace-section {
+            min-height: 100vh;
+            padding: 80px 0 100px;
+        }
+        
+        /* FAQ 섹션 높이 조정 */
+        .gallery-section {
+            min-height: 100vh;
+            padding: 100px 0;
+        }
+        
+        /* 연락처 섹션 높이 조정 */
+        .contact-section {
+            min-height: 80vh; /* 내용이 적어 더 낮게 설정 */
+            padding: 80px 0;
+        }
+        
+        /* 컨테이너 내부 여백 조정 */
+        .container {
+            padding: 0 30px;
+        }
+        
+        /* 섹션 타이틀 마진 조정 */
+        .title {
+            margin-bottom: 50px;
+        }
+        
+        /* 작업 아이템 여백 개선 */
+        .work-section .item {
+            margin-bottom: 40px;
+        }
+        
+        /* FAQ 컨테이너 여백 조정 */
+        .faq-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        /* 반응형 디자인 개선을 위한 미디어 쿼리 */
+        @media (min-width: 992px) {
+            /* 큰 화면에서의 섹션 높이 및 패딩 */
+            .section {
+                min-height: 100vh;
+                padding: 100px 0;
+            }
+            
+            .work-section {
+                min-height: 120vh;
+            }
+            
+            /* 타이틀과 콘텐츠 사이 여백 증가 */
+            .title {
+                margin-bottom: 60px;
+            }
+            
+            /* 큰 화면에서 FAQ 아이템 여백 조정 */
+            .faq-item {
+                padding: 30px;
+                margin-bottom: 25px;
+            }
+        }
+        
+        @media (min-width: 1200px) {
+            /* 매우 큰 화면에서의 섹션 높이 및 패딩 */
+            .section {
+                min-height: 100vh;
+                padding: 120px 0;
+            }
+            
+            /* 컨테이너 최대 너비 제한 */
+            .container {
+                max-width: 1140px;
+            }
+            
+            /* 체크리스트 테이블 높이 조정 */
+            .table-responsive {
+                min-height: 400px;
+            }
+            
+            /* 작업실 콘텐츠 높이 조정 */
+            #workspace-content {
+                min-height: 600px;
+            }
+        }
+        
+        @media (min-width: 1400px) {
+            /* 초대형 화면에서의 조정 */
+            .container {
+                max-width: 1320px;
+            }
+            
+            /* 섹션 간 간격 증가 */
+            .section {
+                min-height: 100vh;
+                padding: 150px 0;
+            }
+        }
+        
+        /* 스크롤 내비게이션 위치 조정 */
+        .navbar-scrolled .navbar-nav {
+            margin-top: 0;
+        }
+        
+        /* 포워딩 섹션 스타일 */
+        .workspace-forwarding {
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
+        }
+        
+        .workspace-forwarding h4 {
+            color: #007bff;
+        }
+        
+        #forwarding-submit {
+            transition: all 0.3s ease;
+        }
+        
+        #forwarding-submit:hover {
+            background-color: #0069d9;
+            transform: translateY(-2px);
+        }
+        
+        #forwarding-result {
+            border-radius: 4px;
+            padding: 10px 15px;
+        }
+        
+        /* 포워딩 섹션 텍스트 색상 수정 */
+        .workspace-forwarding label,
+        .workspace-forwarding .form-check-label {
+            color: #333333 !important; /* 라벨 색상 검은색으로 변경 */
+            font-weight: 500; /* 라벨 글씨 굵기 설정 */
+        }
+        
+        .workspace-forwarding input,
+        .workspace-forwarding textarea {
+            color: #333333 !important; /* 입력 필드 텍스트 색상 검은색으로 변경 */
+            background-color: #ffffff !important; /* 입력 필드 배경색 흰색으로 변경 */
+        }
+        
+        .workspace-forwarding h4 {
+            color: #007bff !important; /* 제목 색상 파란색 유지 */
+        }
+        
+        /* 포워딩 결과 메시지 텍스트 색상 조정 */
+        #forwarding-result.alert-success {
+            color: #155724 !important; /* 성공 메시지 색상 */
+        }
+        
+        #forwarding-result.alert-danger {
+            color: #721c24 !important; /* 오류 메시지 색상 */
+        }
+        
+        /* 입력 필드 포커스 효과 개선 */
+        .workspace-forwarding input:focus,
+        .workspace-forwarding textarea:focus {
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            border-color: #80bdff;
+        }
+        
+        /* 대형 화면에서 컨테이너 최대 너비 제한 */
+        .container {
+            max-width: 1200px !important;
+            margin: 0 auto;
+        }
+        
+        /* Our Service 섹션 레이아웃 개선 */
+        .work-section .row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .work-section .item {
+            flex: 0 0 30%; /* 3개씩 한 줄에 */
+            margin: 0 1.5% 40px;
+            max-width: 350px;
+        }
+        
+        /* Our Service 아이템 내부 정렬 조정 */
+        .tm-work-item-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        /* 큰 화면에서 콘텐츠 중앙 정렬 */
+        @media (min-width: 1400px) {
+            .work-section .row {
+                justify-content: center;
+            }
+            
+            .tm-work-item-inner {
+                max-width: 300px;
+                margin: 0 auto;
+            }
+        }
+        
+        /* 섹션 간 간격 확실히 늘리기 */
+        .section {
+            margin-bottom: 80px !important;
+            padding-bottom: 80px !important;
+            position: relative;
+            clear: both;
+        }
+        
+        /* 작업실 섹션과 포워딩 섹션 위치 수정 */
+        .workspace-section {
+            margin-top: 100px;
+            padding-top: 100px;
+            z-index: 1;
+            position: relative;
+            background-color: #f8f9fa;
+        }
+        
+        /* 포워딩 섹션 스타일 수정 */
+        .workspace-forwarding {
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
+            margin-top: 40px;
+            position: relative;
+            z-index: 20;
+        }
+        
+        /* 각 섹션 배경 분리를 위한 스타일 */
+        .section:after {
+            content: "";
+            display: block;
+            height: 40px;
+            width: 100%;
+            position: absolute;
+            bottom: -20px;
+            background-color: inherit;
+            z-index: 5;
+        }
+        
+        /* 새 업무 알림 팝업 스타일 */
+        .new-task-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(0, 123, 255, 0.95);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 10000;
+            max-width: 350px;
+            transform: translateX(400px);
+            transition: transform 0.5s ease;
+            font-weight: bold;
+            border-left: 5px solid #0056b3;
+        }
+        
+        .new-task-popup.show {
+            transform: translateX(0);
+        }
+        
+        .new-task-popup .popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .new-task-popup .popup-icon {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .new-task-popup .popup-close {
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            padding: 0;
+            margin-left: 10px;
+        }
+        
+        .new-task-popup .popup-content {
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        
+        .new-task-popup .popup-button {
+            display: block;
+            width: 100%;
+            text-align: center;
+            background-color: white;
+            color: #007bff;
+            margin-top: 15px;
+            padding: 8px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .new-task-popup .popup-button:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+
+<!--
+
+Tooplate 2123 Simply Amazed
+
+https://www.tooplate.com/view/2123-simply-amazed
+
+-->
+</head>
+
+<body>
+    <div id="outer">
+        <header class="header order-last" id="tm-header">
+            <nav class="navbar">
+                <div class="collapse navbar-collapse single-page-nav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#section-1"><span class="icn"><i class="fas fa-2x fa-air-freshener"></i></span> Tel-U</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#section-checklist"><span class="icn"><i class="fas fa-2x fa-tasks"></i></span> 체크리스트</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#section-workspace"><span class="icn"><i class="fas fa-2x fa-briefcase"></i></span> 작업실</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#section-2"><span class="icn"><i class="fab fa-2x fa-battle-net"></i></span> Our Service</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#section-3"><span class="icn"><i class="far fa-2x fa-images"></i></span> FAQ</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#section-4"><span class="icn"><i class="far fa-2x fa-comments"></i></span> Contact</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+        
+        <button class="navbar-button collapsed" type="button">
+            <span class="menu_icon">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </span>
+        </button>
+        
+        <main id="content-box" class="order-first">
+            <div class="banner-section section parallax-window" data-parallax="scroll" data-image-src="img/section-1-bg.jpg" id="section-1">
+                <div class="container">
+                    <!-- 방해금지모드 토글 버튼과 날짜 입력 추가 -->
+                    <div class="dnd-toggle-container text-right mb-3">
+                        <div class="row">
+                            <div class="col-md-6 text-left">
+                                <div class="date-input-container">
+                                    <input type="date" id="custom-date" class="form-control form-control-sm" title="날짜 변경">
+                                    <button id="reset-date" class="btn btn-sm btn-outline-light ml-2" title="오늘 날짜로 초기화">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-6 text-right">
+                                <button id="dnd-toggle" class="btn btn-danger btn-sm active">
+                                    <i class="fas fa-bell-slash"></i> 방해금지모드 끄기
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="item">
+                        <div class="bg-blue-transparent logo-fa"><span><i class="fas fa-2x fa-atom"></i></span> Tel-U</div>
+                        <div class="bg-blue-transparent simple">
+                            <p>
+                                <span id="dnd-icon-left" style="display: none;"><i class="fas fa-volume-mute fa-lg mr-2"></i></span>
+                                행정업무는 Tel-U가 처리했으니 안심하라구!
+                                <span id="dnd-icon-right" style="display: none;"><i class="fas fa-volume-mute fa-lg ml-2"></i></span>
+                            </p>
+                            <p id="task-summary" class="mt-3"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 새로운 체크리스트 섹션 추가 -->
+            <section class="checklist-section section" id="section-checklist">
+                <div class="container">
+                    <div class="title">
+                        <h2>행정 업무 체크리스트</h2>
+                    </div>
+                    <div class="filter-container text-right mb-4">
+                        <button id="filter-remaining" class="btn btn-primary">남은 일만</button>
+                        <button id="filter-all" class="btn btn-outline-primary ml-2">모두 보기</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>제출</th>
+                                    <th>남은 기한</th>
+                                    <th>접수일</th>
+                                    <th>업무 내용</th>
+                                    <th>할당자</th>
+                                    <th>포워딩</th>
+                                </tr>
+                            </thead>
+                            <tbody id="checklist-body">
+                                <tr>
+                                    <td class="text-center">
+                                        <img src="img/checkbox-unchecked.png" class="checkbox-img" data-status="unchecked" alt="미완료" width="24" height="24">
+                                    </td>
+                                    <td><span class="deadline-date" data-deadline="25-05-04"></span></td>
+                                    <td><span class="receipt-date" data-receipt="25-04-20">25-04-20</span></td>
+                                    <td><span class="task-content task-important">개인정보 과세정보 제공 활용 동의서, 제3자 제공 동의서</span></td>
+                                    <td>공지인</td>
+                                    <td>유미르</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center">
+                                        <img src="img/checkbox-checked.png" class="checkbox-img" data-status="checked" alt="완료" width="24" height="24">
+                                    </td>
+                                    <td><span class="deadline-date" data-deadline="25-05-08"></span></td>
+                                    <td><span class="receipt-date" data-receipt="25-04-15">25-04-15</span></td>
+                                    <td><span class="task-content">학과 세미나 참석 확인서 제출</span></td>
+                                    <td>공지인</td>
+                                    <td>유미르</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center">
+                                        <img src="img/checkbox-unchecked.png" class="checkbox-img" data-status="unchecked" alt="미완료" width="24" height="24">
+                                    </td>
+                                    <td><span class="deadline-date" data-deadline="25-05-13"></span></td>
+                                    <td><span class="receipt-date" data-receipt="25-05-07">25-05-07</span></td>
+                                    <td><span class="task-content">대표 연구실적 증빙자료</span></td>
+                                    <td>공지인</td>
+                                    <td>김미르</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center">
+                                        <img src="img/checkbox-checked.png" class="checkbox-img" data-status="checked" alt="완료" width="24" height="24">
+                                    </td>
+                                    <td><span class="deadline-date" data-deadline="25-05-01"></span></td>
+                                    <td><span class="receipt-date" data-receipt="25-04-25">25-04-25</span></td>
+                                    <td><span class="task-content task-important">연구실 안전 교육 이수증 제출</span></td>
+                                    <td>공지인</td>
+                                    <td>-</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 작업실 섹션 추가 -->
+            <section class="workspace-section section" id="section-workspace">
+                <div class="container">
+                    <div class="title">
+                        <h2>작업실</h2>
+                        <p class="text-muted">체크리스트에서 업무를 선택하면 상세 정보가 표시됩니다.</p>
+                    </div>
+                    <div id="workspace-content" style="display: none;">
+                        <!-- 요약 정보 (Summary) -->
+                        <div class="workspace-summary mb-4 p-3 bg-light rounded">
+                            <h4 class="mb-3">업무 요약</h4>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>제출 여부:</strong> <span id="ws-status"></span></p>
+                                    <p><strong>남은 기한:</strong> <span id="ws-deadline"></span></p>
+                                    <p><strong>접수일:</strong> <span id="ws-receipt-date"></span></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>업무 내용:</strong> <span id="ws-task-content"></span></p>
+                                    <p><strong>할당자:</strong> <span id="ws-assignee"></span></p>
+                                    <p><strong>포워딩:</strong> <span id="ws-forwarding"></span></p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 샘플과 프로세스 컨테이너 -->
+                        <div class="row">
+                            <!-- 샘플 (Sample) -->
+                            <div class="col-md-6">
+                                <div class="workspace-sample mb-4 p-3 bg-light rounded">
+                                    <h4 class="mb-3">샘플 문서</h4>
+                                    <div id="sample-container" class="pdf-container">
+                                        <!-- PDF가 여기에 표시됩니다 -->
+                                        <iframe id="sample-pdf" src="" width="100%" height="500px" style="border: 1px solid #ddd;"></iframe>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 프로세스 (Process) -->
+                            <div class="col-md-6">
+                                <div class="workspace-process mb-4 p-3 bg-light rounded">
+                                    <h4 class="mb-3">작업 프로세스</h4>
+                                    <div id="process-container">
+                                        <!-- 작업 프로세스 설명이 여기에 표시됩니다 -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 포워딩 섹션 추가 -->
+                        <div class="workspace-forwarding mt-4 p-3 bg-light rounded">
+                            <h4 class="mb-3">포워딩하기</h4>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="forwarding-email"><i class="fas fa-envelope mr-2"></i>수신자 이메일</label>
+                                        <input type="email" class="form-control" id="forwarding-email" placeholder="예: colleague@university.ac.kr" value="young.researcher@univ.ac.kr">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="forwarding-name"><i class="fas fa-user mr-2"></i>수신자 이름</label>
+                                        <input type="text" class="form-control" id="forwarding-name" placeholder="예: 김연구원" value="박지원">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="forwarding-reason"><i class="fas fa-comment mr-2"></i>포워딩 사유</label>
+                                <textarea class="form-control" id="forwarding-reason" rows="3" placeholder="업무 포워딩 사유를 입력해주세요.">현재 진행 중인 실험으로 인해 해당 업무를 처리하기 어려워 박지원 연구원에게 위임하고자 합니다. 관련 자료는 이미 공유했으며, 처리 결과를 알려주실 것을 부탁드립니다.</textarea>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="notify-original-assignee" checked>
+                                    <label class="form-check-label" for="notify-original-assignee">
+                                        원래 할당자에게 알림
+                                    </label>
+                                </div>
+                                <button type="button" id="forwarding-submit" class="btn btn-primary active">
+                                    <i class="fas fa-paper-plane mr-2"></i>포워딩 신청
+                                </button>
+                            </div>
+                            </div>
+                            <!-- 포워딩 결과 메시지 -->
+                            <div id="forwarding-result" class="mt-3" style="display: none;"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 초기 안내 메시지 -->
+                    <div id="workspace-initial-message" class="text-center py-5">
+                        <i class="fas fa-tasks fa-4x mb-3 text-muted"></i>
+                        <h4 class="text-muted">체크리스트에서 업무를 선택해주세요</h4>
+                    </div>
+                </div>
+            </section>
+
+            <section class="work-section section" id="section-2">
+                <div class="container">
+                    <div class="section-content-wrapper">
+                        <div class="row">
+                            <div class="item col-md-4">
+                                <div class="tm-work-item-inner">
+                                    <div class="icn"><i class="fas fa-2x fa-icons"></i></div>
+                                    <h3>.01 하던 일 해요!</h3>
+                                    <p>처리할 행정 업무가 있으면 정해진 시간에 알려드릴게요!</p>
+                                </div>
+                            </div>
+                            <div class="item col-md-4 one">
+                                <div class="tm-work-item-inner">
+                                    <div class="icn"><i class="fas fa-2x fa-tools"></i></div>
+                                    <h3>.02 보면서 작업해요!</h3>
+                                    <p>완성된 샘플을 보여줄게요! 보면서 작업해요!</p>
+                                </div>
+                            </div>
+                            <div class="item col-md-4 two">
+                                <div class="tm-work-item-inner">
+                                    <div class="icn"><i class="fab fa-2x fa-phoenix-framework"></i></div>
+                                    <h3>.03 중요한 것만 적어요!</h3>
+                                    <p>기본 정보는 Tel-U가 적어드릴게요!</p>
+                                </div>
+                            </div>
+                            <div class="item col-md-4 two">
+                                <div class="tm-work-item-inner">
+                                    <div class="icn"><i class="fas fa-2x fa-icons"></i></div>
+                                    <h3>.04 안 건드려요!</h3>
+                                    <p>중요한 일정에는 되도록 안 부를게요!</p>
+                                </div>
+                            </div>
+                            <div class="item col-md-4 two">
+                                <div class="tm-work-item-inner">
+                                    <div class="icn"><i class="fas fa-2x fa-tools"></i></div>
+                                    <h3>.05 담당자에게 전달해요!</h3>
+                                    <p>제 일이 아니면 담당자와 업무 할당자에게 알려요!</p>
+                                </div>
+                            </div>
+                            <div class="item col-md-4 two">
+                                <div class="tm-work-item-inner">
+                                    <div class="icn"><i class="fab fa-2x fa-phoenix-framework"></i></div>
+                                    <h3>.06 여기서 다해요!</h3>
+                                    <p>작업 가이드와 링크 리스트로 한 곳에서 업무를 처리해요!</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="title">
+                            <h2>Our Service</h2>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="gallery-section section parallax-window" data-parallax="scroll" data-image-src="img/section-3-bg.jpg" id="section-3">
+                <div class="container">
+                    <div class="title text-right">
+                        <h2>FAQ</h2>
+                    </div>
+                    <div class="faq-container">
+                        <!-- FAQ 아이템 1 -->
+                        <div class="faq-item">
+                            <h3 class="faq-question">Q. 누구의 불편함을 해결해주나요?</h3>
+                            <div class="faq-answer">
+                                <p>A. 한국인 대학원생의 행정 업무처리로 인한 불편함을 해결해줘요.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- FAQ 아이템 2 -->
+                        <div class="faq-item">
+                            <h3 class="faq-question">Q. XyZ 가설은 무엇인가요?</h3>
+                            <div class="faq-answer">
+                                <p>1. "내가 속한 연구실의 대학원생" 중 "85%"는 "행정 업무 관리를 위해" 나의 서비스를 이용할 것이다.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- FAQ 아이템 3 -->
+                        <div class="faq-item">
+                            <h3 class="faq-question">Q. 대학원생이 행정 업무 때문에 어떤 어려움을 겪나요?</h3>
+                            <div class="faq-answer">
+                                <p>행정 업무의 자잘한 요건들을 알기 힘들어요. 일하다가 흐름이 끊겨요.</p>
+                                <p>제 담당이 아닌 일을 맡아요.</p>
+                                <p>여러 웹사이트를 찾아서 일해야 해요.</p>
+                                <p>제대로 행정 업무를 끝냈는지 알기 힘들어요.</p>
+                                <p>행정 업무가 너무 많아요.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- FAQ 아이템 4 -->
+                        <div class="faq-item">
+                            <h3 class="faq-question">Q. 대학원생들은 어떤 욕구를 가졌나요?</h3>
+                            <div class="faq-answer">
+                                <p>연구에 온전히 집중하는 환경을 마련하고 싶어요.</p>
+                                <p>내 일만 마음 편하고 쉽게 처리하고 싶어요.</p>
+                                <p>제 의지와 상관없이 해야하는 일이라서 힘들어요.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- FAQ 아이템 5 -->
+                        <div class="faq-item">
+                            <h3 class="faq-question">Q. 대학원생들의 욕구의 핵심 본질은 무엇인가요?</h3>
+                            <div class="faq-answer">
+                                <p>연구 전념할 환경 마련</p>
+                            </div>
+                        </div>
+                        
+                        <!-- FAQ 아이템 6 -->
+                        <div class="faq-item">
+                            <h3 class="faq-question">Q. 방해금지모드는 오남용되면 어떡하나요?</h3>
+                            <div class="faq-answer">
+                                <p>학생의 신청과 교수님의 승인에 따라 한정된 기간에만 사용하도록 제한을 걸 것입니다.</p>
+                                <p>행정실의 긴급하거나 중요한 업무에 대해서는 방해금지모드와 관계없이 알림을 드립니다.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- FAQ 아이템 7 -->
+                        <div class="faq-item">
+                            <h3 class="faq-question">Q. 포워딩이 오남용되면 어떡하나요?</h3>
+                            <div class="faq-answer">
+                                <p>오남용 방지를 위해 포워딩된 경로를 추적하여 수신자들에게 알릴 것입니다.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- FAQ 아이템 8 -->
+                        <div class="faq-item">
+                            <h3 class="faq-question">Q. 대학원생에게 친화적인데 행정실이 이 서비스를 선호할까요?</h3>
+                            <div class="faq-answer">
+                                <p>대학원생들의 업무 처리 속도와 정확도를 높여 행정실에도 도움이 되는 서비스가 될 것입니다.</p>
+                                <p>투명한 진행 관리와 행정에 도움이 되는 데이터를 제공하여 행정실도 이용할 동기가 될 것입니다.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="contact-section section" id="section-4">
+                <div class="container">
+                    <div class="title">
+                        <h3>Contact Us</h3>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-5 col-md-6 mb-4 contact-form">
+                            <div class="form tm-contact-item-inner">
+                                <form action="#" method="POST">
+                                    <div class="form-group">
+                                        <input name="name" type="text" class="form-control" placeholder="Name">
+                                    </div>
+                                    <div class="form-group">
+                                        <input name="email" type="text" class="form-control" placeholder="Email">
+                                    </div>
+                                    <div class="form-group">
+                                        <textarea name="message" class="textarea form-control" placeholder="Message"></textarea>
+                                    </div>
+                                    <div class="form-group text-right">
+                                        <input type="submit" class="btn btn-primary" value="Send it">
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 mb-4 contact-details">
+                            <div class="tm-contact-item-inner-2">
+                                <p>Nam mollis felis elementum, placerat dolor id, vehicula libero. Etiam dui nisl, mattis ut rhoncus et, cursus ut diam.</p>
+                                <ul class="font-weight-light">
+                                    <li>
+                                        <span class="icn"><i class="fas fa-mobile-alt"></i></span>
+                                        <span class="lbl">Tel:</span> <a href="#">010-8610-7052</a>
+                                    </li>
+                                    <li>
+                                        <span class="icn"><i class="fas fa-at"></i></span>
+                                        <span class="lbl">Email:</span> <a href="#">sheepswool@yonsei.ac.kr</a>
+                                    </li>
+                                    <li>
+                                        <span class="icn"><i class="fas fa-globe-asia"></i></span>
+                                        <span class="lbl">URL:</span> <a href="#">www.company.com</a>
+                                    </li>
+                                </ul>
+                            </div>                        
+                        </div>
+                        <!-- <div class="col-lg-3 col-md-12 map">
+                            <div class="map-outer tm-mb-40">
+                                <div class="gmap-canvas">
+                                    <iframe width="100%" height="400" id="gmap-canvas"
+                                        src="https://maps.google.com/maps?q=Av.+L%C3%BAcio+Costa,+Rio+de+Janeiro+-+RJ,+Brazil&t=&z=13&ie=UTF8&iwloc=&output=embed"
+                                        frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
+                                </div>
+                            </div>
+                        </div> -->
+                    </div>                
+                </div>
+                <section id="reply">
+                    <center>
+                        <p>이메일을 남겨주시면 서비스가 런칭되었을 때 알림을 드리겠습니다. </p>
+                        <input id="submit-email" type="email" placeholder="알림을 받으실 이메일" /> <br><br>
+                        
+                        <p>서비스에 대한 평가나 조언을 남겨주세요</p>
+                        <textarea id="submit-advice" name="Text1" cols="40" rows="5" placeholder="서비스에 대한 조언을 남겨주세요"></textarea><br>
+                        <button style="width:350px;" id="submit">지금 제출! </button>
+                    </center>
+                </section>
+                <!-- <footer class="footer container container-2">
+                    <div class="row"> 
+                        <p class="col-sm-7">Copyright 2021 Simply Amazed Co.</p>
+                        <p class="col-sm-5 text-right design">Design: <a rel="nofollow" href="https://www.tooplate.com" target="_parent">Tooplate</a></p>
+                    </div>
+                </footer> -->
+            </section>
+
+        </main>
+    </div>
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/jquery.singlePageNav.min.js"></script>
+    <script src="js/slick.js"></script>
+    <script src="js/parallax.min.js"></script>
+    <script src="js/templatemo-script.js"></script>
+    
+    <!-- IP detection script -->
+    <script type="application/javascript">
+        var ip = "null";
+        function getIP(json) {
+            console.log(json);
+            try {
+                ip = json.ip;
+            } catch (e) {
+                ip = 'unknown';
+            }
+            return;
+        }
+    </script>
+    <script type="application/javascript" src="https://jsonip.com?format=jsonp&callback=getIP"></script>
+    
+    <script>
+        // Sam pading value to start with 0. eg: 01, 02, .. 09, 10, ..
+        function padValue(value) {
+            return (value < 10) ? "0" + value : value;
+        }
+
+        function getTimeStamp() {
+            const date = new Date();
+
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const hours = date.getHours();
+            const minutes = date.getMinutes();
+            const seconds = date.getSeconds();
+
+            const formattedDate = `${padValue(year)}-${padValue(month)}-${padValue(day)} ${padValue(hours)}:${padValue(minutes)}:${padValue(seconds)}`;
+
+            return formattedDate;
+        }
+        // 쿠키에서 값을 가져오는 함수
+        function getCookieValue(name) {
+            const value = "; " + document.cookie;
+            const parts = value.split("; " + name + "=");
+            if (parts.length === 2) {
+                return parts.pop().split(";").shift();
+            }
+        }
+
+        // 쿠키에 값을 저장하는 함수
+        function setCookieValue(name, value, days) {
+            let expires = "";
+            if (days) {
+                const date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+
+        function getUVfromCookie() {
+            // 6자리 임의의 문자열 생성
+            const hash = Math.random().toString(36).substring(2, 8).toUpperCase();
+            // 쿠키에서 기존 해시 값을 가져옴
+            const existingHash = getCookieValue("user");
+            // 기존 해시 값이 없으면, 새로운 해시 값을 쿠키에 저장
+            if (!existingHash) {
+                setCookieValue("user", hash, 180); // 쿠키 만료일은 6개월 
+                return hash;
+            } else {
+                // 기존 해시 값이 있으면, 기존 값을 반환
+                return existingHash;
+            }
+        }
+
+        /* 수정 payload data -> id:getUVfromCookie() */
+
+        var queryString = location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const utm = urlParams.get("utm")
+    
+        var mobile = 'desktop';
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            // true for mobile device
+            mobile = 'mobile';
+        }
+
+        /* data를 만들 땐 모든 field가 들어 있어야 함 */
+        var data = JSON.stringify(
+            {"id": getUVfromCookie(),
+        "landingUrl": window.location.href, 
+        "ip": ip, 
+        "referer": document.referrer,
+        "time_stamp": getTimeStamp(), 
+        "utm": utm,
+        "device": mobile}
+        );
+
+        $(document).ready(function () {
+
+            addrScript = 'https://script.google.com/macros/s/AKfycbzizOOhpr__UIANizUSF1ErlPJnXpM3EWyxOO2WRBjfD2JpzNrWAkK8IyZwz6f_nBcX/exec';
+
+            $.ajax({
+                url: addrScript+'?action=insert&table=visitors&data='+data,
+                dataType: 'jsonp',
+                success: function (data) {
+                console.log('성공 - ', JSON.stringify(data));
+                },
+                error: function (xhr) {
+                console.log('실패 - ', JSON.stringify(xhr));
+                }
+            });
+            $("#submit").on("click", function () {
+                const email = $("#submit-email").val();
+                const advice = $("#submit-advice").val();
+                $.busyLoadFull("show");
+                function validateEmail(email) {
+                    var re = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+                    return re.test(email);
+                }
+        
+                if (email == '' || !validateEmail(email)) {
+                    $.busyLoadFull("hide");
+                    alert("이메일이 유효하지 않아 알림을 드릴 수가 없습니다. ");
+                    return;
+                }
+        
+                var finalData = JSON.stringify({
+                    "id": getUVfromCookie(),
+                    "email": email,
+                    "advice": advice
+                })
+        
+                axios.get(addrScript+'?action=insert&table=tab_final&data=' + finalData)
+                    .then(response => {
+                    console.log(response.data.data);
+                    <!-- alert(JSON.stringify(response)); -->
+                    $.busyLoadFull("hide");
+                    $.fn.simplePopup({ type: "html", htmlSelector: "#popup" });
+                    $('#submit-email').val('');
+                    $('#submit-advice').val('');
+                    })
+                });
+     });
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/busy-load/dist/app.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/busy-load/dist/app.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/gh/dinoqqq/simple-popup@master/dist/jquery.simple-popup.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/gh/dinoqqq/simple-popup@master/dist/jquery.simple-popup.min.css" rel="stylesheet" type="text/css" />
+
+    <div id="popup" style="display:none;">
+        <h1>감사합니다. </h1>
+        <p>이제는 우리는 같은 배를 탔습니다.  </p>
+        </div>
+
+    <script>
+        // 체크리스트 관련 스크립트
+        $(document).ready(function() {
+            // 체크박스 이미지 클릭 이벤트
+            $('.checkbox-img').on('click', function() {
+                const status = $(this).data('status');
+                if (status === 'checked') {
+                    $(this).attr('src', 'img/checkbox-unchecked.png');
+                    $(this).data('status', 'unchecked');
+                    $(this).attr('alt', '미완료');
+                } else {
+                    $(this).attr('src', 'img/checkbox-checked.png');
+                    $(this).data('status', 'checked');
+                    $(this).attr('alt', '완료');
+                }
+            });
+
+            // 필터 기능
+            $('#filter-remaining').on('click', function() {
+                $('.checkbox-img').each(function() {
+                    const row = $(this).closest('tr');
+                    if ($(this).data('status') === 'checked') {
+                        row.hide();
+                    } else {
+                        row.show();
+                    }
+                });
+                $(this).removeClass('btn-outline-primary').addClass('btn-primary');
+                $('#filter-all').removeClass('btn-primary').addClass('btn-outline-primary');
+            });
+
+            $('#filter-all').on('click', function() {
+                $('.checkbox-img').closest('tr').show();
+                $(this).removeClass('btn-outline-primary').addClass('btn-primary');
+                $('#filter-remaining').removeClass('btn-primary').addClass('btn-outline-primary');
+            });
+
+            // 방해금지모드 기본값 설정 (켜짐)
+            $('#dnd-icon-left, #dnd-icon-right').show();
+            
+            // 현재 날짜 가져오기 및 날짜 입력 필드 초기화
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0]; // YYYY-MM-DD 형식
+            $('#custom-date').val(formattedDate);
+            
+            // 사용자 지정 날짜 변수 (전역으로 사용)
+            let customDate = today;
+            
+            // 날짜 변경 이벤트 처리 개선
+            $('#custom-date').on('change', function() {
+                const selectedDate = new Date($(this).val());
+                customDate = selectedDate;
+                
+                // 날짜 관련 로직 업데이트 - 순서와 함수 호출 확인
+                processReceiptDates(customDate);
+                updateRemainingTime(customDate);
+                updateTaskSummary(customDate);
+                
+                // 디버깅용 메시지 (필요시 확인 후 제거)
+                console.log("날짜 변경됨:", selectedDate);
+                console.log("업무 요약 업데이트 완료");
+            });
+            
+            // 날짜 초기화 버튼
+            $('#reset-date').on('click', function() {
+                const realToday = new Date();
+                const formattedRealToday = realToday.toISOString().split('T')[0];
+                $('#custom-date').val(formattedRealToday);
+                customDate = realToday;
+                
+                // 날짜 관련 로직 업데이트
+                processReceiptDates(customDate);
+                updateRemainingTime(customDate);
+                updateTaskSummary(customDate);
+            });
+            
+            // 기존 함수들을 수정하여 사용자 지정 날짜 사용
+            function processReceiptDates(currentDate = customDate) {
+                // 한국 시간으로 조정 (GMT+9)
+                const now = new Date(currentDate);
+                now.setHours(now.getHours() + 9);
+                
+                const today = {
+                    year: now.getFullYear().toString().substr(-2), // 마지막 2자리만 사용 (YY)
+                    month: (now.getMonth() + 1).toString().padStart(2, '0'), // MM
+                    day: now.getDate().toString().padStart(2, '0') // DD
+                };
+                
+                const todayStr = `${today.year}-${today.month}-${today.day}`;
+                
+                // 모든 접수일 요소 처리
+                $('.receipt-date').each(function() {
+                    $(this).removeClass('receipt-date-today'); // 기존 강조 제거
+                    
+                    const receiptDate = $(this).data('receipt');
+                    
+                    // 오늘 접수된 항목 강조 표시
+                    if (receiptDate === todayStr) {
+                        $(this).addClass('receipt-date-today');
+                    }
+                });
+            }
+            
+            // 남은 시간 계산 및 표시 함수 수정
+            function updateRemainingTime(currentDate = customDate) {
+                const now = new Date(currentDate);
+                // 한국 시간으로 조정 (GMT+9)
+                now.setHours(now.getHours() + 9);
+                
+                $('.deadline-date').each(function() {
+                    const deadlineStr = $(this).data('deadline');
+                    const deadlineParts = deadlineStr.split('-');
+                    
+                    // YY-MM-DD 형식에서 날짜 객체 생성 (한국 시간 00:00 기준)
+                    const deadline = new Date(
+                        parseInt('20' + deadlineParts[0]), // 연도 (20YY로 변환)
+                        parseInt(deadlineParts[1]) - 1,    // 월 (0-11)
+                        parseInt(deadlineParts[2]),        // 일
+                        0, 0, 0                           // 00:00:00
+                    );
+                    
+                    // 남은 시간 계산 (밀리초 단위)
+                    let remainingTime = deadline.getTime() - now.getTime();
+                    
+                    if (remainingTime <= 0) {
+                        // 마감 시간이 지난 경우
+                        $(this).html('<span class="text-danger">마감</span>');
+                    } else {
+                        // 남은 시간 계산
+                        const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
+                        remainingTime -= days * (1000 * 60 * 60 * 24);
+                        
+                        const hours = Math.floor(remainingTime / (1000 * 60 * 60));
+                        remainingTime -= hours * (1000 * 60 * 60);
+                        
+                        const minutes = Math.floor(remainingTime / (1000 * 60));
+                        
+                        // 표시 형식 결정
+                        let displayText = '';
+                        if (days > 0) {
+                            displayText = `${days}일 ${hours}시간`;
+                        } else if (hours > 0) {
+                            displayText = `${hours}시간 ${minutes}분`;
+                        } else {
+                            displayText = `${minutes}분`;
+                        }
+                        
+                        // 긴급 표시 (24시간 이내)
+                        if (days === 0 && hours < 24) {
+                            displayText = `<span class="text-danger font-weight-bold">${displayText}</span>`;
+                        }
+                        
+                        $(this).html(displayText);
+                    }
+                });
+            }
+            
+            // 업무 요약 정보 계산 및 표시 함수 개선
+            function updateTaskSummary(currentDate = customDate) {
+                // 오늘 날짜 가져오기 (한국 시간 기준)
+                const now = new Date(currentDate);
+                now.setHours(now.getHours() + 9); // GMT+9 조정
+                
+                const today = {
+                    year: now.getFullYear().toString().substr(-2), // 마지막 2자리만 사용 (YY)
+                    month: (now.getMonth() + 1).toString().padStart(2, '0'), // MM
+                    day: now.getDate().toString().padStart(2, '0') // DD
+                };
+                
+                const todayStr = `${today.year}-${today.month}-${today.day}`;
+                console.log("기준 날짜:", todayStr); // 디버깅용
+                
+                // 오늘 접수된 업무 수 계산
+                let receiptToday = 0;
+                $('.receipt-date').each(function() {
+                    const receiptDate = $(this).data('receipt');
+                    if (receiptDate === todayStr) {
+                        receiptToday++;
+                        console.log("오늘 접수된 업무:", $(this).closest('tr').find('.task-content').text());
+                    }
+                });
+                
+                // 남은 업무 수 계산
+                let remainingTasks = 0;
+                let remainingImportantTasks = 0;
+                
+                $('.checkbox-img').each(function() {
+                    if ($(this).data('status') === 'unchecked') {
+                        remainingTasks++;
+                        
+                        // 중요 업무인지 확인
+                        const taskContent = $(this).closest('tr').find('.task-content');
+                        if (taskContent.hasClass('task-important')) {
+                            remainingImportantTasks++;
+                        }
+                    }
+                });
+                
+                // 요약 메시지 생성 및 표시
+                const summaryMessage = `좋은 하루에요!<br>오늘은 <strong>${receiptToday}</strong>개의 행정 업무가 새로 할당되었어요.<br><strong>${remainingTasks}</strong>개의 업무가 남아 있고,<br>이 중 <strong>${remainingImportantTasks}</strong>개의 중요 업무가 남아있어요.`;
+                
+                // HTML 형식으로 요약 메시지 표시 (줄바꿈 처리)
+                $('#task-summary').html(summaryMessage);
+                
+                // 새 업무가 있으면 팝업 알림 표시
+                if (receiptToday > 0) {
+                    showNewTaskPopup(receiptToday);
+                }
+            }
+            
+            // 새 업무 알림 팝업 표시 함수
+            function showNewTaskPopup(taskCount) {
+                // 기존 팝업이 있으면 제거
+                removeNewTaskPopup();
+                
+                // 팝업 HTML 생성
+                const popupHTML = `
+                    <div class="new-task-popup">
+                        <div class="popup-header">
+                            <span>
+                                <i class="fas fa-bell popup-icon"></i>
+                                새 업무 알림
+                            </span>
+                            <button class="popup-close">&times;</button>
+                        </div>
+                        <div class="popup-content">
+                            <p>오늘 <strong>${taskCount}</strong>개의 새로운 업무가 생겼습니다!</p>
+                            <p>빠른 확인이 필요합니다.</p>
+                        </div>
+                        <button class="popup-button" id="check-new-tasks">
+                            업무 확인하기
+                        </button>
+                    </div>
+                `;
+                
+                // 팝업을 body에 추가
+                $('body').append(popupHTML);
+                
+                // 팝업 애니메이션 처리
+                setTimeout(function() {
+                    $('.new-task-popup').addClass('show');
+                }, 100);
+                
+                // 팝업 닫기 버튼 클릭 이벤트
+                $('.popup-close').on('click', function() {
+                    removeNewTaskPopup();
+                });
+                
+                // 업무 확인 버튼 클릭 이벤트
+                $('#check-new-tasks').on('click', function() {
+                    // 체크리스트 섹션으로 스크롤
+                    $('html, body').animate({
+                        scrollTop: $('#section-checklist').offset().top
+                    }, 800);
+                    
+                    // 팝업 닫기
+                    removeNewTaskPopup();
+                });
+                
+                // 10초 후 자동으로 팝업 닫기
+                setTimeout(removeNewTaskPopup, 10000);
+            }
+
+            // 팝업 제거 함수
+            function removeNewTaskPopup() {
+                const popup = $('.new-task-popup');
+                if (popup.length) {
+                    popup.removeClass('show');
+                    setTimeout(function() {
+                        popup.remove();
+                    }, 500);
+                }
+            }
+            
+            // 초기 실행
+            processReceiptDates();
+            updateRemainingTime();
+            updateTaskSummary();
+            
+            // 방해금지모드 토글 기능 (기존 코드 유지)
+            $('#dnd-toggle').on('click', function() {
+                const isDndActive = $(this).hasClass('active');
+                
+                if (isDndActive) {
+                    // 방해금지모드 끄기
+                    $(this).removeClass('active btn-danger').addClass('btn-outline-light');
+                    $(this).html('<i class="fas fa-bell"></i> 방해금지모드 켜기');
+                    $('#dnd-icon-left, #dnd-icon-right').hide();
+                } else {
+                    // 방해금지모드 켜기
+                    $(this).removeClass('btn-outline-light').addClass('active btn-danger');
+                    $(this).html('<i class="fas fa-bell-slash"></i> 방해금지모드 끄기');
+                    $('#dnd-icon-left, #dnd-icon-right').show();
+                }
+            });
+
+            // 업무 내용 클릭 시 작업실로 이동하는 이벤트 추가
+            $('.task-content').on('click', function() {
+                // 클릭한 업무의 정보 가져오기
+                const row = $(this).closest('tr');
+                const status = row.find('.checkbox-img').data('status');
+                const deadline = row.find('.deadline-date').text();
+                const receiptDate = row.find('.receipt-date').text();
+                const taskContent = $(this).text();
+                const assignee = row.find('td:eq(4)').text();
+                const forwarding = row.find('td:eq(5)').text();
+                
+                // 작업실에 정보 표시
+                $('#ws-status').text(status === 'checked' ? '완료' : '미완료');
+                $('#ws-deadline').text(deadline);
+                $('#ws-receipt-date').text(receiptDate);
+                $('#ws-task-content').text(taskContent);
+                $('#ws-assignee').text(assignee);
+                $('#ws-forwarding').text(forwarding);
+                
+                // 샘플 문서와 작업 프로세스 정보 업데이트
+                updateSampleAndProcess(taskContent);
+                
+                // 초기 메시지 숨기고 작업실 내용 표시
+                $('#workspace-initial-message').hide();
+                $('#workspace-content').show();
+                
+                // 작업실 섹션으로 스크롤 이동
+                $('html, body').animate({
+                    scrollTop: $('#section-workspace').offset().top
+                }, 800);
+            });
+            
+            // 샘플 문서와 작업 프로세스 업데이트 함수
+            function updateSampleAndProcess(taskContent) {
+                // 업무에 따라 다른 샘플 문서와 프로세스 표시
+                // 실제 구현에서는 업무별로 다른 내용을 표시하도록 설정
+                let samplePdfUrl = '';
+                let processHtml = '';
+                
+                // 업무 내용에 따라 분기
+                if (taskContent.includes('개인정보')) {
+                    samplePdfUrl = 'samples/personal_info_consent.pdf';
+                    processHtml = `
+                        <ol>
+                            <li>첨부된 양식을 다운로드합니다.</li>
+                            <li>필요한 정보를 입력합니다.</li>
+                            <li>서명 후 스캔하여 PDF로 저장합니다.</li>
+                            <li>행정실 이메일(admin@university.ac.kr)로 제출합니다.</li>
+                        </ol>
+                    `;
+                } else if (taskContent.includes('세미나')) {
+                    samplePdfUrl = 'samples/seminar_attendance.pdf';
+                    processHtml = `
+                        <ol>
+                            <li>세미나 참석 시 출석부에 서명합니다.</li>
+                            <li>담당 교수님의 확인 서명을 받습니다.</li>
+                            <li>행정실에 직접 제출 또는 이메일로 발송합니다.</li>
+                        </ol>
+                    `;
+                } else if (taskContent.includes('증빙자료')) {
+                    samplePdfUrl = 'samples/thesis_review_application.pdf';
+                    processHtml = `
+                        <ol>
+                            <li>양식을 작성하고 지도교수님 서명을 받습니다.</li>
+                            <li>특허의 경우, 등록증 사본을 스캔하여 첨부합니다.</li>
+                            <li>학과사무실에 제출합니다.</li>
+                            <li>심사위원 섭외는 지도교수님과 상의합니다.</li>
+                        </ol>
+                    `;
+                } else if (taskContent.includes('안전')) {
+                    samplePdfUrl = 'samples/safety_training_certificate.pdf';
+                    processHtml = `
+                        <ol>
+                            <li>연구실 안전 교육 포털(safety.university.ac.kr)에 접속합니다.</li>
+                            <li>필수 교육을 이수합니다(약 4시간 소요).</li>
+                            <li>교육 이수 후 발급되는 이수증을 다운로드합니다.</li>
+                            <li>이수증의 서명란을 펜으로 작성합니다.</li>
+                            <li>행정실에 제출합니다.</li>
+                        </ol>
+                    `;
+                } else {
+                    // 기본 내용
+                    samplePdfUrl = 'samples/default_document.pdf';
+                    processHtml = `
+                        <p>이 업무에 대한 상세 프로세스는 행정실에 문의하세요.</p>
+                        <p>연락처: 02-123-4567</p>
+                    `;
+                }
+                
+                // 샘플 PDF 및 프로세스 업데이트
+                $('#sample-pdf').attr('src', samplePdfUrl);
+                $('#process-container').html(processHtml);
+            }
+
+            // 포워딩 제출 버튼 클릭 이벤트
+            $('#forwarding-submit').on('click', function() {
+                // 필드 값 가져오기
+                const email = $('#forwarding-email').val();
+                const name = $('#forwarding-name').val();
+                const reason = $('#forwarding-reason').val();
+                const notifyOriginal = $('#notify-original-assignee').is(':checked');
+                
+                // 현재 업무 정보 가져오기
+                const taskContent = $('#ws-task-content').text();
+                const originalAssignee = $('#ws-assignee').text();
+                
+                // 간단한 유효성 검사
+                if (!email) {
+                    showForwardingResult('danger', '수신자 이메일을 입력해주세요.');
+                    return;
+                }
+                
+                if (!name) {
+                    showForwardingResult('danger', '수신자 이름을 입력해주세요.');
+                    return;
+                }
+                
+                if (!reason) {
+                    showForwardingResult('danger', '포워딩 사유를 입력해주세요.');
+                    return;
+                }
+                
+                // 로딩 표시
+                $('#forwarding-submit').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i>처리 중...');
+                
+                // 이메일 전송을 시뮬레이션 (실제로는 서버 API 호출)
+                setTimeout(function() {
+                    // 포워딩 성공 처리
+                    showForwardingResult('success', `
+                        <strong>포워딩이 완료되었습니다!</strong><br>
+                        - 수신자: ${name} (${email})<br>
+                        - 업무: ${taskContent}<br>
+                        ${notifyOriginal ? '- 원래 할당자인 ' + originalAssignee + '에게 알림이 전송되었습니다.' : ''}
+                    `);
+                    
+                    // 필드 초기화
+                    $('#forwarding-email').val('');
+                    $('#forwarding-name').val('');
+                    $('#forwarding-reason').val('');
+                    $('#notify-original-assignee').prop('checked', false);
+                    
+                    // 버튼 상태 복원
+                    $('#forwarding-submit').prop('disabled', false).html('<i class="fas fa-paper-plane mr-2"></i>포워딩 신청');
+                    
+                    // 테이블의 포워딩 정보 업데이트 (실제 구현에서는 서버에서 데이터를 가져와야 함)
+                    updateForwardingInfo(taskContent, name);
+                }, 1500);
+            });
+            
+            // 포워딩 결과 메시지 표시 함수
+            function showForwardingResult(type, message) {
+                const resultDiv = $('#forwarding-result');
+                resultDiv.removeClass('alert-success alert-danger')
+                         .addClass('alert alert-' + type)
+                         .html(message)
+                         .slideDown();
+                
+                // 5초 후 메시지 사라짐
+                setTimeout(function() {
+                    resultDiv.slideUp();
+                }, 5000);
+            }
+            
+            // 테이블의 포워딩 정보 업데이트 함수
+            function updateForwardingInfo(taskContent, newForwardingName) {
+                // 체크리스트에서 해당 업무를 찾아 포워딩 정보 업데이트
+                $('#checklist-body tr').each(function() {
+                    const rowTaskContent = $(this).find('.task-content').text();
+                    if (rowTaskContent === taskContent) {
+                        $(this).find('td:eq(5)').text(newForwardingName);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
