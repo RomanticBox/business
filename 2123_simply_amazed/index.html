@@ -12,9 +12,11 @@
     <link rel="stylesheet" href="css/tooplate-simply-amazed.css" type="text/css" />
     <link rel="stylesheet" href="css/custom-styles.css" type="text/css" />
     <link rel="stylesheet" href="css/mobile-responsive.css" type="text/css" />
+    <link href="https://cdn.jsdelivr.net/gh/dinoqqq/simple-popup@master/dist/jquery.simple-popup.min.css" rel="stylesheet" type="text/css" />
     
     <script src="https://code.jquery.com/jquery-latest.min.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/dinoqqq/simple-popup@master/dist/jquery.simple-popup.min.js"></script>
 
     <style>
         /* 기본 스타일들 - 인라인으로 유지 */
@@ -316,7 +318,7 @@
     </div>
 
     <div id="outer">
-        <header class="header order-last" id="tm-header">
+        <header class="header order-last" id="tm-header" style="display: none;">
             <nav class="navbar">
                 <div class="collapse navbar-collapse single-page-nav">
                     <ul class="navbar-nav">
@@ -350,8 +352,93 @@
                 <span class="icon-bar"></span>
             </span>
         </button>
-
+        
         <main id="content-box" class="order-first">
+            <!-- 사용자 정보 입력 섹션 -->
+            <section id="user-info-section" class="user-info-section section" style="display: block;">
+                <div class="container">
+                    <div class="user-info-container">
+                        <div class="welcome-header">
+                            <h1><i class="fas fa-graduation-cap"></i> Tel-U에 오신 것을 환영합니다!</h1>
+                            <p>대학원생 행정업무 도우미를 사용하기 위해 간단한 정보를 입력해주세요.</p>
+                        </div>
+                        
+                        <div class="user-info-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 20%;"></div>
+                            </div>
+                            <div class="progress-text">1 / 5 단계</div>
+                        </div>
+                        
+                        <!-- 1단계: 이름 -->
+                        <div class="user-info-step active" data-step="0">
+                            <h3 class="step-title">안녕하세요! 성함을 알려주세요</h3>
+                            <input type="text" id="inline-name-input" class="step-input" placeholder="홍길동" maxlength="20">
+                            <div class="step-error text-danger" style="display: none;"></div>
+                            <div class="step-buttons">
+                                <button class="step-btn secondary" onclick="skipInlineStep()">건너뛰기</button>
+                                <button class="step-btn primary" onclick="nextInlineStep()">다음</button>
+                            </div>
+                        </div>
+                        
+                        <!-- 2단계: 학과 -->
+                        <div class="user-info-step" data-step="1">
+                            <h3 class="step-title">어느 학과에 소속되어 있나요?</h3>
+                            <input type="text" id="inline-department-input" class="step-input" placeholder="컴퓨터공학과" maxlength="30">
+                            <div class="step-error text-danger" style="display: none;"></div>
+                            <div class="step-buttons">
+                                <button class="step-btn secondary" onclick="skipInlineStep()">건너뛰기</button>
+                                <button class="step-btn primary" onclick="nextInlineStep()">다음</button>
+                            </div>
+                        </div>
+                        
+                        <!-- 3단계: 생년월일 -->
+                        <div class="user-info-step" data-step="2">
+                            <h3 class="step-title">생년월일을 알려주세요</h3>
+                            <input type="date" id="inline-birthdate-input" class="step-input">
+                            <div class="step-error text-danger" style="display: none;"></div>
+                            <div class="step-buttons">
+                                <button class="step-btn secondary" onclick="skipInlineStep()">건너뛰기</button>
+                                <button class="step-btn primary" onclick="nextInlineStep()">다음</button>
+                            </div>
+                        </div>
+                        
+                        <!-- 4단계: 행정실 이메일 -->
+                        <div class="user-info-step" data-step="3">
+                            <h3 class="step-title">학과 행정실 이메일을 알려주세요</h3>
+                            <input type="email" id="inline-admin-email-input" class="step-input" placeholder="admin@department.ac.kr">
+                            <div class="step-error text-danger" style="display: none;"></div>
+                            <div class="step-buttons">
+                                <button class="step-btn secondary" onclick="skipInlineStep()">건너뛰기</button>
+                                <button class="step-btn primary" onclick="nextInlineStep()">다음</button>
+                            </div>
+                        </div>
+                        
+                        <!-- 5단계: 지도교수 -->
+                        <div class="user-info-step" data-step="4">
+                            <h3 class="step-title">지도교수님 성함을 알려주세요</h3>
+                            <input type="text" id="inline-advisor-name-input" class="step-input" placeholder="김교수" maxlength="20">
+                            <div class="step-error text-danger" style="display: none;"></div>
+                            <div class="step-buttons">
+                                <button class="step-btn secondary" onclick="skipInlineStep()">건너뛰기</button>
+                                <button class="step-btn primary" onclick="nextInlineStep()">완료</button>
+                            </div>
+                        </div>
+                        
+                        <!-- 완료 단계 -->
+                        <div id="inline-completion-step" class="user-info-step">
+                            <div class="completion-message">
+                                <h2>🎉 설정 완료!</h2>
+                                <p>Tel-U 사용 준비가 모두 끝났습니다.<br>이제 효율적인 업무 관리를 시작하세요!</p>
+                                <button class="step-btn primary" onclick="console.log('시작하기 버튼 클릭됨'); try { showMainContent(); } catch(e) { console.error('showMainContent 오류:', e); forceShowMainContent(); }">시작하기</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 메인 콘텐츠 (처음에는 숨김) -->
+            <div id="main-content" style="display: none;">
             <!-- Tel-U 섹션 -->
             <div class="banner-section section parallax-window" data-parallax="scroll" data-image-src="img/section-1-bg.jpg" id="section-1">
                 <div class="container">
@@ -370,7 +457,7 @@
                                     <span class="mr-2">방해금지모드</span>
                                     <button class="btn btn-sm btn-outline-light dnd-button" onclick="toggleDNDMode()">
                                         <i class="fas fa-toggle-off" id="dnd-icon"></i>
-                                    </button>
+                                </button>
                                 </div>
                             </div>
                         </div>
@@ -400,7 +487,7 @@
                                     <option value="unchecked">미완료</option>
                                     <option value="checked">완료</option>
                                 </select>
-                            </div>
+                    </div>
                             <div class="col-md-6">
                                 <label for="importance-filter">중요도별 필터:</label>
                                 <select id="importance-filter" class="form-control">
@@ -462,7 +549,7 @@
                     </div>
                 </div>
             </section>
-
+            
             <!-- 작업실 섹션 -->
             <section class="workspace-section section" id="section-workspace">
                 <div class="container">
@@ -508,16 +595,16 @@
                                     <iframe id="sample-pdf" class="embed-responsive-item" src="" type="application/pdf">
                                         PDF를 지원하지 않는 브라우저입니다.
                                     </iframe>
+                                    </div>
                                 </div>
-                            </div>
                             <div class="col-md-6">
                                 <h5>처리 프로세스</h5>
-                                <div id="process-container">
+                                    <div id="process-container">
                                     <p>업무를 선택하면 상세 프로세스가 표시됩니다.</p>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- 포워딩 기능 -->
                         <div class="workspace-forwarding mt-5 p-4 bg-light border rounded">
                             <h5>업무 포워딩</h5>
@@ -560,48 +647,48 @@
                     <div class="title">
                         <h2>Our Service</h2>
                     </div>
-                    <div class="row">
+                        <div class="row">
                         <div class="item">
-                            <div class="tm-work-item-inner">
+                                <div class="tm-work-item-inner">
                                 <div class="icn"><i class="fas fa-2x fa-search"></i></div>
                                 <h3>.01 대학원생이 필요한 모든 행정 업무를 모아보여요!</h3>
                                 <p>여러 웹사이트를 옮겨다니지 마세요, Tel-U가 모두 알려드려요!</p>
+                                </div>
                             </div>
-                        </div>
                         <div class="item">
-                            <div class="tm-work-item-inner">
+                                <div class="tm-work-item-inner">
                                 <div class="icn"><i class="fas fa-2x fa-eye"></i></div>
-                                <h3>.02 보면서 작업해요!</h3>
+                                    <h3>.02 보면서 작업해요!</h3>
                                 <p>샘플 양식과 작성법을 제공하여 쉽게 따라할 수 있어요!</p>
+                                </div>
                             </div>
-                        </div>
                         <div class="item">
-                            <div class="tm-work-item-inner">
+                                <div class="tm-work-item-inner">
                                 <div class="icn"><i class="fas fa-2x fa-user-friends"></i></div>
                                 <h3>.03 업무를 다른 사람에게 넘겨요!</h3>
                                 <p>바쁠 때는 동료에게 업무를 포워딩할 수 있어요!</p>
+                                </div>
                             </div>
-                        </div>
                         <div class="item">
-                            <div class="tm-work-item-inner">
+                                <div class="tm-work-item-inner">
                                 <div class="icn"><i class="fas fa-2x fa-bell"></i></div>
                                 <h3>.04 마감일을 놓치지 않게 알려드려요!</h3>
                                 <p>중요한 업무의 마감일을 미리 알림으로 받으세요!</p>
+                                </div>
                             </div>
-                        </div>
                         <div class="item">
-                            <div class="tm-work-item-inner">
+                                <div class="tm-work-item-inner">
                                 <div class="icn"><i class="fas fa-2x fa-chart-line"></i></div>
                                 <h3>.05 진행 상황을 한눈에 확인해요!</h3>
                                 <p>완료된 업무와 남은 업무를 체크리스트로 관리하세요!</p>
+                                </div>
                             </div>
-                        </div>
                         <div class="item">
-                            <div class="tm-work-item-inner">
+                                <div class="tm-work-item-inner">
                                 <div class="icn"><i class="fas fa-2x fa-moon"></i></div>
                                 <h3>.06 방해금지모드로 집중해요!</h3>
                                 <p>연구에 집중할 때는 방해금지모드를 활용하세요!</p>
-                            </div>
+                                </div>
                         </div>
                     </div>
                 </div>
@@ -664,134 +751,76 @@
                     </div>
                 </div>
             </section>
-            
+
             <!-- 제출 섹션 -->
             <section id="reply">
                 <div class="container">
                     <div class="title">
                         <h2>Contact</h2>
                     </div>
-                <center>
+                    <center>
                     <p>이메일을 남겨주시면 서비스가 런칭되었을 때 알림을 드리겠습니다.</p>
-                    <input id="submit-email" type="email" placeholder="알림을 받으실 이메일" /> <br><br>
-                    <p>서비스에 대한 평가나 조언을 남겨주세요</p>
-                    <textarea id="submit-advice" name="Text1" cols="40" rows="5" placeholder="서비스에 대한 조언을 남겨주세요"></textarea><br>
+                        <input id="submit-email" type="email" placeholder="알림을 받으실 이메일" /> <br><br>
+                        <p>서비스에 대한 평가나 조언을 남겨주세요</p>
+                        <textarea id="submit-advice" name="Text1" cols="40" rows="5" placeholder="서비스에 대한 조언을 남겨주세요"></textarea><br>
                     <button style="width:350px;" id="submit">지금 제출!</button>
-                </center>
-                </div>
+                    </center>
+                    </div>
             </section>
+
+            <!-- 성공 팝업 -->
+            <div id="popup" style="display:none;">
+                <h1>감사합니다.</h1>
+                <p>이제는 우리는 같은 배를 탔습니다.</p>
+                <p>서비스 런칭 시 알림을 보내드리겠습니다!</p>
+            </div>
+            </div> <!-- main-content 닫기 -->
         </main>
     </div>
 
-    <!-- 로그인/회원가입 모달 -->
-    <div id="auth-overlay" class="auth-overlay">
-        <div class="auth-modal">
-            <div class="auth-header">
-                <h2>Tel-U에 로그인하세요</h2>
-                <p>대학원 행정업무를 효율적으로 관리하려면 로그인이 필요합니다</p>
-            </div>
-            
-            <div id="google-login-btn" class="google-login-btn" onclick="handleGoogleLogin()">
-                <i class="fab fa-google"></i>
-                대학교 Gmail로 로그인
-            </div>
-            
-            <div class="auth-notice">
-                <p><strong>주의:</strong> 대학교에서 발급받은 Gmail 계정만 사용 가능합니다.</p>
-                <small>예: student@yonsei.ac.kr, name@snu.ac.kr</small>
-            </div>
-            
-            <div id="auth-error" class="text-danger text-center" style="display: none; margin-top: 15px;"></div>
-        </div>
-    </div>
-
-    <!-- 온보딩 모달 -->
-    <div id="onboarding-overlay" class="onboarding-overlay">
-        <div class="onboarding-container">
-            <div class="progress-container">
-                <div class="progress-bar">
-                    <div class="progress-fill"></div>
-                </div>
-                <div class="progress-text">1 / 5 단계</div>
-            </div>
-            
-            <!-- 1단계: 이름 -->
-            <div class="onboarding-step active" data-step="0">
-                <h3 class="step-title">안녕하세요! 성함을 알려주세요</h3>
-                <input type="text" id="name-input" class="step-input" placeholder="홍길동" maxlength="20">
-                <div class="step-error text-danger" style="display: none;"></div>
-                <div class="step-buttons">
-                    <button class="step-btn secondary" onclick="skipStep()">건너뛰기</button>
-                    <button class="step-btn primary" onclick="nextStep()">다음</button>
-                </div>
-            </div>
-            
-            <!-- 2단계: 학과 -->
-            <div class="onboarding-step" data-step="1">
-                <h3 class="step-title">어느 학과에 소속되어 있나요?</h3>
-                <input type="text" id="department-input" class="step-input" placeholder="컴퓨터공학과" maxlength="30">
-                <div class="step-error text-danger" style="display: none;"></div>
-                <div class="step-buttons">
-                    <button class="step-btn secondary" onclick="skipStep()">건너뛰기</button>
-                    <button class="step-btn primary" onclick="nextStep()">다음</button>
-                </div>
-            </div>
-            
-            <!-- 3단계: 생년월일 -->
-            <div class="onboarding-step" data-step="2">
-                <h3 class="step-title">생년월일을 알려주세요</h3>
-                <input type="date" id="birthdate-input" class="step-input">
-                <div class="step-error text-danger" style="display: none;"></div>
-                <div class="step-buttons">
-                    <button class="step-btn secondary" onclick="skipStep()">건너뛰기</button>
-                    <button class="step-btn primary" onclick="nextStep()">다음</button>
-                </div>
-            </div>
-            
-            <!-- 4단계: 행정실 이메일 -->
-            <div class="onboarding-step" data-step="3">
-                <h3 class="step-title">학과 행정실 이메일을 알려주세요</h3>
-                <input type="email" id="admin-email-input" class="step-input" placeholder="admin@department.ac.kr">
-                <div class="step-error text-danger" style="display: none;"></div>
-                <div class="step-buttons">
-                    <button class="step-btn secondary" onclick="skipStep()">건너뛰기</button>
-                    <button class="step-btn primary" onclick="nextStep()">다음</button>
-                </div>
-            </div>
-            
-            <!-- 5단계: 지도교수 -->
-            <div class="onboarding-step" data-step="4">
-                <h3 class="step-title">지도교수님 성함을 알려주세요</h3>
-                <input type="text" id="advisor-name-input" class="step-input" placeholder="김교수" maxlength="20">
-                <div class="step-error text-danger" style="display: none;"></div>
-                <div class="step-buttons">
-                    <button class="step-btn secondary" onclick="skipStep()">건너뛰기</button>
-                    <button class="step-btn primary" onclick="nextStep()">완료</button>
-                </div>
-            </div>
-            
-            <!-- 완료 단계 -->
-            <div id="completion-step" class="onboarding-step">
-                <div class="completion-message">
-                    <h2>🎉 설정 완료!</h2>
-                    <p>Tel-U 사용 준비가 모두 끝났습니다.<br>이제 효율적인 업무 관리를 시작하세요!</p>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- 기존 모달들 제거됨 - 인라인 방식 사용 -->
 
     <script src="js/app.js"></script>
-    <script src="js/auth.js"></script>
+    
+    <!-- Gmail API 스크립트들 활성화 (OAuth 팝업은 허용) -->
     <script src="js/gmail-api.js"></script>
     <script src="js/email-monitor.js"></script>
     <script src="js/forwarding-system.js"></script>
     <script src="js/notification-system.js"></script>
-    <script src="js/settings.js"></script>
+    
+    <!-- Google API 스크립트들 -->
+    <script src="https://apis.google.com/js/api.js" async defer></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
+    <!-- 기타 팝업 발생 스크립트들은 비활성화 유지 -->
+    <!-- <script src="js/auth.js"></script> -->
+    <!-- <script src="js/settings.js"></script> -->
+    
+    <!-- IP 주소 가져오기 -->
+    <script type="application/javascript">
+        var ip = "null";
+        function getIP(json) {
+            console.log(json);
+            try {
+                ip = json.ip;
+            } catch (e) {
+                ip = 'unknown';
+            }
+            return;
+        }
+    </script>
+    <script type="application/javascript" src="https://jsonip.com?format=jsonp&callback=getIP"></script>
+    
     <script>
         // 페이지 로드 시 초기화
         $(document).ready(function() {
             console.log('페이지 로드 완료, 초기화 시작...');
+            
+            // IP가 로드된 후 방문자 추적 실행
+                setTimeout(function() {
+                trackVisitor();
+                console.log('방문자 추적 완료');
+            }, 1000); // IP 스크립트 로드를 위해 1초 대기
             
             // 네비게이션 기능 초기화
             initNavigation();
@@ -831,23 +860,21 @@
                 $(this).next('.faq-answer').toggleClass('show');
             });
             
-            // Gmail API 로드 (선택사항)
-            loadGoogleAPIs();
+            // 팝업 발생 함수들 완전 제거 (알림 권한 요청 등)
+            console.log('팝업 발생 기능들 비활성화됨 - 완전 인라인 모드');
             
-            // 브라우저 알림 권한 요청
-            requestNotificationPermission();
+            // 인라인 로그인 상태 확인만 실행
+            checkInlineLoginStatus();
             
-            // 알림 스케줄 설정
-            setupNotificationSchedule();
+            // Gmail API 초기화 (Google 스크립트 로드 후)
+            setTimeout(function() {
+                if (typeof initializeGmailAPI === 'function') {
+                    initializeGmailAPI();
+                    console.log('📧 Gmail API 초기화 시도됨');
+                } else {
+                    console.log('⚠️ Gmail API 함수가 아직 로드되지 않음');
+                }
+            }, 3000); // Google API 스크립트 로드를 위해 3초 대기
             
-            // 설정 버튼 추가 (네비게이션에)
-            addSettingsButton();
-            
-            // 로그인 상태 확인 (가장 마지막에)
-            checkLoginStatus();
-            
-            console.log('모든 초기화 완료!');
-        });
-    </script>
-</body>
-</html>
+            console.log('🎉 모든 초기화 완료! (Gmail 연동 포함)');
+든 초기화 완료!');
