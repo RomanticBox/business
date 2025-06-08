@@ -2,6 +2,42 @@
 let customDate = new Date();
 let dndMode = false;
 
+// 개발/테스트 모드 설정
+const DEVELOPMENT_MODE = true; // true로 설정하면 매번 사용자 정보 입력 화면이 나옵니다
+
+// 팝업 방지를 위한 안전장치 설정
+(function() {
+    console.log('🛡️ 팝업 방지 안전장치 활성화');
+    
+    // 개발 모드에서는 기존 사용자 정보 자동 삭제
+    if (DEVELOPMENT_MODE) {
+        console.log('🔧 개발 모드: 기존 사용자 정보 자동 삭제');
+        localStorage.removeItem('userInfo');
+        localStorage.removeItem('isLoggedIn');
+    }
+    
+    // Notification API 오버라이드 (팝업 방지)
+    if (typeof window.Notification !== 'undefined') {
+        const originalRequestPermission = window.Notification.requestPermission;
+        window.Notification.requestPermission = function() {
+            console.log('❌ Notification.requestPermission 호출 차단됨');
+            return Promise.resolve('denied');
+        };
+    }
+    
+    // 기타 팝업 발생 가능한 API들 오버라이드
+    if (typeof window.alert !== 'undefined') {
+        const originalAlert = window.alert;
+        window.safeAlert = originalAlert; // 백업
+        window.alert = function(message) {
+            console.log('🔔 Alert 메시지:', message);
+            // alert 대신 콘솔에만 로그
+        };
+    }
+    
+    console.log('✅ 팝업 방지 안전장치 설정 완료');
+})();
+
 // 업무 데이터 정의
 const taskData = {
     "대표 연구실적 증빙자료": {
@@ -115,9 +151,9 @@ function updateTaskSummary() {
     const taskSummaryHtml = `
         <strong>Tel-U</strong><br>
         좋은 하루에요!<br>
-        오늘은 <strong>${newTasksToday}개</strong>의 행정 업무가 새로 할당되었어요.<br>
-        <strong>${remainingTasks}개</strong>의 업무가 남아 있고,<br>
-        이 중 <strong>${importantTasks}개</strong>의 중요 업무가 남아있어요.<br><br>
+        새로운 업무 : <strong>${newTasksToday}개</strong><br>
+        남은 업무 : <strong>${remainingTasks}개</strong><br>
+        중요 업무 : <strong>${importantTasks}개</strong><br><br>
         행정업무는 Tel-U가 처리했으니 안심하라구!
     `;
     
@@ -462,39 +498,38 @@ function initForwardingFunctions() {
 }
 
 function initSubmitFunctions() {
-    $('#submit').on('click', function() {
-        const email = $('#submit-email').val().trim();
-        const advice = $('#submit-advice').val().trim();
-        
-        if (!email) {
-            alert('이메일을 입력해주세요.');
-            $('#submit-email').focus();
+    $("#submit").on("click", function () {
+        const email = $("#submit-email").val();
+        const advice = $("#submit-advice").val();
+
+        function validateEmail(email) {
+            var re = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+            return re.test(email);
+        }
+
+        if (email == '' || !validateEmail(email)) {
+            alert("이메일이 유효하지 않아 알림을 드릴 수가 없습니다. ");
             return;
         }
-        
-        // 이메일 형식 검증
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            alert('올바른 이메일 형식을 입력해주세요.');
-            $('#submit-email').focus();
-            return;
-        }
-        
-        // 제출 버튼 비활성화
-        $(this).prop('disabled', true).text('제출 중...');
-        
-        // 스프레드시트에 데이터 전송
-        submitToSpreadsheet(email, advice)
-            .then(() => {
-                // 성공 시
-                alert('제출이 완료되었습니다! 감사합니다.');
+
+        var finalData = JSON.stringify({
+            "id": getUVfromCookie(),
+            "email": email,
+            "advice": advice
+        })
+
+        axios.get('https://script.google.com/macros/s/AKfycbzizOOhpr__UIANizUSF1ErlPJnXpM3EWyxOO2WRBjfD2JpzNrWAkK8IyZwz6f_nBcX/exec?action=insert&table=tab_final&data=' + finalData)
+            .then(response => {
+                console.log(response.data.data);
+                // alert(JSON.stringify(response));
                 $('#submit-email').val('');
                 $('#submit-advice').val('');
                 
-                // 성공 팝업 표시
-                showSuccessPopup();
+                // simple-popup으로 성공 메시지 표시
+                // $.fn.simplePopup({ type: "html", htmlSelector: "#popup" });
+                $.fn.simplePopup({ type: "html", htmlSelector: "#popup" });
             })
-            .catch((error) => {
+            .catch(error => {
                 console.error('제출 실패:', error);
                 alert('제출 중 오류가 발생했습니다. 다시 시도해주세요.');
             })
@@ -505,39 +540,7 @@ function initSubmitFunctions() {
     });
 }
 
-// 스프레드시트에 데이터 제출
-async function submitToSpreadsheet(email, advice) {
-    // Google Sheets API 또는 웹앱 스크립트 URL
-    const SPREADSHEET_URL = 'https://script.google.com/macros/s/AKfycbzizOOhpr__UIANizUSF1ErlPJnXpM3EWyxOO2WRBjfD2JpzNrWAkK8IyZwz6f_nBcX/exec';
-    
-    const data = {
-        timestamp: new Date().toISOString(),
-        email: email,
-        advice: advice || '의견 없음',
-        userAgent: navigator.userAgent,
-        referrer: document.referrer || 'Direct'
-    };
-    
-    try {
-        const response = await fetch(SPREADSHEET_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-            mode: 'no-cors' // CORS 문제 해결
-        });
-        
-        // 로컬 스토리지에도 백업 저장
-        saveSubmissionLocally(data);
-        
-        return response;
-    } catch (error) {
-        // 네트워크 오류 시 로컬에만 저장
-        saveSubmissionLocally(data);
-        throw error;
-    }
-}
+// 기존 submitToGoogleScript 함수는 새로운 axios 방식으로 교체됨
 
 // 로컬 스토리지에 제출 데이터 저장
 function saveSubmissionLocally(data) {
@@ -546,33 +549,39 @@ function saveSubmissionLocally(data) {
     localStorage.setItem('submissions', JSON.stringify(submissions));
 }
 
-// 성공 팝업 표시
-function showSuccessPopup() {
-    const popup = `
-        <div class="success-popup" id="success-popup">
-            <div class="success-content">
-                <i class="fas fa-check-circle success-icon"></i>
-                <h3>제출 완료!</h3>
-                <p>소중한 의견 감사합니다.<br>서비스 런칭 시 알림을 보내드리겠습니다.</p>
-                <button class="btn btn-primary" onclick="closeSuccessPopup()">확인</button>
-            </div>
-        </div>
-    `;
-    
-    $('body').append(popup);
-    $('#success-popup').fadeIn();
-    
-    // 5초 후 자동 닫기
-    setTimeout(() => {
-        closeSuccessPopup();
-    }, 5000);
+// 쿠키에서 값을 가져오는 함수
+function getCookieValue(name) {
+    const value = "; " + document.cookie;
+    const parts = value.split("; " + name + "=");
+    if (parts.length === 2) {
+        return parts.pop().split(";").shift();
+    }
 }
 
-// 성공 팝업 닫기
-function closeSuccessPopup() {
-    $('#success-popup').fadeOut(function() {
-        $(this).remove();
-    });
+// 쿠키에 값을 저장하는 함수
+function setCookieValue(name, value, days) {
+    let expires = "";
+    if (days) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "") + expires + "; path=/";
+}
+
+function getUVfromCookie() {
+    // 6자리 임의의 문자열 생성
+    const hash = Math.random().toString(36).substring(2, 8).toUpperCase();
+    // 쿠키에서 기존 해시 값을 가져옴
+    const existingHash = getCookieValue("user");
+    // 기존 해시 값이 없으면, 새로운 해시 값을 쿠키에 저장
+    if (!existingHash) {
+        setCookieValue("user", hash, 180); // 쿠키 만료일은 6개월 
+        return hash;
+    } else {
+        // 기존 해시 값이 있으면, 기존 값을 반환
+        return existingHash;
+    }
 }
 
 // 인증 모드 전환 함수 추가
@@ -589,48 +598,504 @@ function toggleAuthMode() {
     }
 }
 
-// 페이지 로드 시 로그인 상태 확인 추가
-$(document).ready(function() {
-    // 기존 초기화 코드...
-    
-    // 로그인 상태 확인 (가장 마지막에 추가)
-    checkLoginStatus();
-    
-    // Gmail API 로드
-    loadGoogleAPIs();
-    
-    // 브라우저 알림 권한 요청
-    requestNotificationPermission();
-    
-    // 알림 스케줄 설정
-    setupNotificationSchedule();
-    
-    // 설정 버튼 추가 (네비게이션에)
-    addSettingsButton();
-});
-
-// Google API 로드
-function loadGoogleAPIs() {
-    const script1 = document.createElement('script');
-    script1.src = 'https://apis.google.com/js/api.js';
-    script1.onload = initializeGapi;
-    document.head.appendChild(script1);
-    
-    const script2 = document.createElement('script');
-    script2.src = 'https://accounts.google.com/gsi/client';
-    script2.onload = initializeGis;
-    document.head.appendChild(script2);
+// Sam pading value to start with 0. eg: 01, 02, .. 09, 10, ..
+function padValue(value) {
+    return (value < 10) ? "0" + value : value;
 }
 
-// 설정 버튼 추가
+function getTimeStamp() {
+    const date = new Date();
+
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
+
+    const formattedDate = `${padValue(year)}-${padValue(month)}-${padValue(day)} ${padValue(hours)}:${padValue(minutes)}:${padValue(seconds)}`;
+
+    return formattedDate;
+}
+
+// UTM 가져오기
+function getUTMParams() {
+    var queryString = location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const utm = urlParams.get("utm");
+    return utm || 'none';
+}
+
+// Device 가져오기
+function getDeviceType() {
+    var mobile = 'desktop';
+    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        // true for mobile device
+        mobile = 'mobile';
+    }
+    return mobile;
+}
+
+// 인라인 사용자 정보 입력 관련 변수
+let inlineCurrentStep = 0;
+let inlineUserInfo = {
+    name: '',
+    department: '',
+    birthdate: '',
+    adminEmail: '',
+    advisorName: ''
+};
+
+// 인라인 다음 단계
+function nextInlineStep() {
+    const currentStepData = getInlineCurrentStepData();
+    
+    if (!validateInlineCurrentStep(currentStepData)) {
+        return;
+    }
+    
+    saveInlineCurrentStepData(currentStepData);
+    
+    if (inlineCurrentStep < 4) {
+        inlineCurrentStep++;
+        updateInlineProgress();
+        showInlineStep(inlineCurrentStep);
+    } else {
+        completeInlineOnboarding();
+    }
+}
+
+// 인라인 건너뛰기
+function skipInlineStep() {
+    if (inlineCurrentStep < 4) {
+        inlineCurrentStep++;
+        updateInlineProgress();
+        showInlineStep(inlineCurrentStep);
+    } else {
+        completeInlineOnboarding();
+    }
+}
+
+// 현재 단계 데이터 가져오기
+function getInlineCurrentStepData() {
+    switch(inlineCurrentStep) {
+        case 0:
+            return $('#inline-name-input').val();
+        case 1:
+            return $('#inline-department-input').val();
+        case 2:
+            return $('#inline-birthdate-input').val();
+        case 3:
+            return $('#inline-admin-email-input').val();
+        case 4:
+            return $('#inline-advisor-name-input').val();
+        default:
+            return '';
+    }
+}
+
+// 현재 단계 검증
+function validateInlineCurrentStep(data) {
+    if (!data.trim()) {
+        showInlineStepError('이 필드를 입력해주세요.');
+        return false;
+    }
+    
+    // 이메일 검증 (행정실 이메일)
+    if (inlineCurrentStep === 3) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(data)) {
+            showInlineStepError('올바른 이메일 형식을 입력해주세요.');
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+// 현재 단계 데이터 저장
+function saveInlineCurrentStepData(data) {
+    switch(inlineCurrentStep) {
+        case 0:
+            inlineUserInfo.name = data;
+            break;
+        case 1:
+            inlineUserInfo.department = data;
+            break;
+        case 2:
+            inlineUserInfo.birthdate = data;
+            break;
+        case 3:
+            inlineUserInfo.adminEmail = data;
+            break;
+        case 4:
+            inlineUserInfo.advisorName = data;
+            break;
+    }
+}
+
+// 진행률 업데이트
+function updateInlineProgress() {
+    const progress = ((inlineCurrentStep + 1) / 5) * 100;
+    $('.user-info-progress .progress-fill').css('width', progress + '%');
+    $('.user-info-progress .progress-text').text(`${inlineCurrentStep + 1} / 5 단계`);
+}
+
+// 단계 표시
+function showInlineStep(step) {
+    $('.user-info-step').removeClass('active');
+    $(`.user-info-step[data-step="${step}"]`).addClass('active');
+    
+    // 입력 필드에 포커스
+    setTimeout(() => {
+        $('.user-info-step.active input').focus();
+    }, 300);
+}
+
+// 인라인 온보딩 완료
+function completeInlineOnboarding() {
+    console.log('completeInlineOnboarding 함수 실행 시작');
+    console.log('현재 inlineUserInfo:', inlineUserInfo);
+    
+    try {
+        // 완료 메시지 표시
+        $('.user-info-step').removeClass('active');
+        $('#inline-completion-step').addClass('active');
+        
+        // 개발 모드가 아닐 때만 사용자 정보 저장
+        if (!DEVELOPMENT_MODE) {
+            localStorage.setItem('userInfo', JSON.stringify(inlineUserInfo));
+            localStorage.setItem('isLoggedIn', 'true');
+            console.log('✅ 사용자 정보 저장 완료:', inlineUserInfo);
+        } else {
+            console.log('🔧 개발 모드: 사용자 정보 저장 건너뜀');
+        }
+        
+        console.log('localStorage 확인:', {
+            userInfo: localStorage.getItem('userInfo'),
+            isLoggedIn: localStorage.getItem('isLoggedIn'),
+            developmentMode: DEVELOPMENT_MODE
+        });
+        
+        // 완료 단계가 제대로 표시되었는지 확인
+        const completionStep = $('#inline-completion-step');
+        if (completionStep.length > 0 && completionStep.hasClass('active')) {
+            console.log('✅ 완료 단계 표시 성공');
+        } else {
+            console.error('❌ 완료 단계 표시 실패');
+        }
+        
+    } catch (error) {
+        console.error('❌ completeInlineOnboarding 실행 중 오류:', error);
+    }
+}
+
+// 메인 콘텐츠 표시
+function showMainContent() {
+    console.log('showMainContent 함수 실행 시작');
+    
+    try {
+        // 사용자 정보 확인
+        const savedUserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+        console.log('저장된 사용자 정보:', savedUserInfo);
+        
+        // 확실하게 요소들이 존재하는지 확인
+        if ($('#user-info-section').length === 0) {
+            console.error('user-info-section 요소를 찾을 수 없습니다');
+            return;
+        }
+        
+        if ($('#main-content').length === 0) {
+            console.error('main-content 요소를 찾을 수 없습니다');
+            return;
+        }
+        
+        console.log('페이드아웃 시작...');
+        $('#user-info-section').fadeOut(500, function() {
+            console.log('페이드인 시작...');
+            $('#main-content').fadeIn(500);
+            $('#tm-header').show();
+            
+            // 사용자 이름으로 환영 메시지 업데이트
+            if (savedUserInfo && savedUserInfo.name) {
+                const taskSummaryElement = $('#task-summary');
+                if (taskSummaryElement.length > 0) {
+                    const currentSummary = taskSummaryElement.html();
+                    const newSummary = currentSummary.replace('좋은 하루에요!', `${savedUserInfo.name}님, 좋은 하루에요!`);
+                    taskSummaryElement.html(newSummary);
+                    console.log('환영 메시지 업데이트 완료');
+                }
+            }
+            
+            // 페이지 최상단으로 스크롤
+            $('html, body').animate({ scrollTop: 0 }, 500);
+            console.log('메인 콘텐츠 표시 완료');
+        });
+        
+    } catch (error) {
+        console.error('showMainContent 실행 중 오류:', error);
+        
+        // 오류 발생 시 강제로 표시
+        $('#user-info-section').hide();
+        $('#main-content').show();
+        $('#tm-header').show();
+        console.log('강제 표시 완료');
+    }
+}
+
+// 인라인 단계 에러 표시
+function showInlineStepError(message) {
+    const errorDiv = $('.user-info-step.active .step-error');
+    errorDiv.text(message).show().delay(3000).fadeOut();
+}
+
+// 개발용: 사용자 정보 초기화 함수 (브라우저 콘솔에서 resetUserInfo() 실행)
+function resetUserInfo() {
+    console.log('🔄 사용자 정보 초기화 시작...');
+    localStorage.removeItem('userInfo');
+    localStorage.removeItem('isLoggedIn');
+    console.log('✅ localStorage 정리 완료');
+    console.log('🔄 페이지 새로고침...');
+    location.reload();
+}
+
+// 강제 사용자 정보 섹션 표시 (디버깅용)
+function forceShowUserSection() {
+    console.log('🔧 강제 사용자 정보 섹션 표시');
+    showUserInfoSection();
+}
+
+// 강제 메인 콘텐츠 표시 (디버깅용)
+function forceShowMain() {
+    console.log('🔧 강제 메인 콘텐츠 표시');
+    showMainContent();
+}
+
+// 개발 모드 토글 (콘솔에서 사용)
+function toggleDevelopmentMode() {
+    window.DEVELOPMENT_MODE = !DEVELOPMENT_MODE;
+    console.log(`🔧 개발 모드 ${DEVELOPMENT_MODE ? '활성화' : '비활성화'}됨`);
+    console.log('🔄 페이지를 새로고침하면 변경사항이 적용됩니다.');
+}
+
+// 현재 저장된 사용자 정보 확인 (콘솔에서 사용)
+function checkStoredUserInfo() {
+    const userInfo = localStorage.getItem('userInfo');
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    
+    console.log('📊 현재 저장된 정보:');
+    console.log('- 로그인 상태:', isLoggedIn);
+    console.log('- 사용자 정보:', userInfo ? JSON.parse(userInfo) : '없음');
+    console.log('- 개발 모드:', DEVELOPMENT_MODE);
+}
+
+// 개발자용 도움말 (콘솔에서 help() 실행)
+function help() {
+    console.log('🔧 개발자용 명령어:');
+    console.log('- resetUserInfo(): 사용자 정보 초기화');
+    console.log('- forceShowUserSection(): 사용자 정보 입력 화면 표시');
+    console.log('- forceShowMain(): 메인 콘텐츠 표시');
+    console.log('- toggleDevelopmentMode(): 개발 모드 토글');
+    console.log('- checkStoredUserInfo(): 저장된 정보 확인');
+    console.log('- help(): 이 도움말 표시');
+}
+
+// 인라인 로그인 상태 확인 (팝업 없는 안전 모드)
+function checkInlineLoginStatus() {
+    console.log('🔍 인라인 로그인 상태 확인 시작 (팝업 방지 모드)');
+    
+    try {
+        // 개발 모드에서는 항상 사용자 정보 입력 화면 표시
+        if (DEVELOPMENT_MODE) {
+            console.log('🔧 개발 모드: 사용자 정보 입력 화면 강제 표시');
+            showUserInfoSection();
+            return;
+        }
+        
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        const userInfo = localStorage.getItem('userInfo');
+        
+        console.log('📊 저장된 상태:', { 
+            isLoggedIn: !!isLoggedIn, 
+            hasUserInfo: !!userInfo 
+        });
+        
+        if (isLoggedIn === 'true' && userInfo) {
+            // 기존 사용자 - 메인 콘텐츠 바로 표시
+            console.log('✅ 기존 사용자 감지 - 메인 콘텐츠 표시');
+            try {
+                const userData = JSON.parse(userInfo);
+                console.log('👤 사용자 정보:', userData.name || '이름 없음');
+            } catch (e) {
+                console.warn('사용자 정보 파싱 오류:', e);
+            }
+            showMainContent();
+        } else {
+            // 새 사용자 - 인라인 정보 입력 표시
+            console.log('📝 새 사용자 - 인라인 정보 입력 모드');
+            showUserInfoSection();
+        }
+        
+    } catch (error) {
+        console.error('❌ 로그인 상태 확인 중 오류:', error);
+        // 오류 시 안전하게 정보 입력 섹션 표시
+        showUserInfoSection();
+    }
+}
+
+// 사용자 정보 섹션 표시 (안전 모드)
+function showUserInfoSection() {
+    try {
+        console.log('📋 사용자 정보 입력 섹션 표시');
+        
+        // jQuery 방식 시도
+        if (typeof $ !== 'undefined') {
+            $('#user-info-section').show().css('display', 'flex');
+            $('#main-content').hide();
+            $('#tm-header').hide();
+            
+            // 포커스 설정
+            setTimeout(() => {
+                const nameInput = $('#inline-name-input');
+                if (nameInput.length > 0) {
+                    nameInput.focus();
+                    console.log('✏️ 입력 필드 포커스 설정 완료');
+                }
+            }, 300);
+        } else {
+            // 순수 JavaScript 백업
+            const userSection = document.getElementById('user-info-section');
+            const mainContent = document.getElementById('main-content');
+            const header = document.getElementById('tm-header');
+            
+            if (userSection) userSection.style.display = 'flex';
+            if (mainContent) mainContent.style.display = 'none';
+            if (header) header.style.display = 'none';
+            
+            // 포커스 설정
+            setTimeout(() => {
+                const nameInput = document.getElementById('inline-name-input');
+                if (nameInput) nameInput.focus();
+            }, 300);
+        }
+        
+    } catch (error) {
+        console.error('❌ 사용자 정보 섹션 표시 중 오류:', error);
+    }
+}
+
+// 방문자 추적 함수
+function trackVisitor() {
+    // 모든 field가 들어 있는 데이터 생성
+    var data = JSON.stringify({
+        "id": getUVfromCookie(),
+        "landingUrl": window.location.href,
+        "ip": ip, // 전역 변수 ip 사용
+        "referer": document.referrer || 'Direct',
+        "time_stamp": getTimeStamp(),
+        "utm": getUTMParams(),
+        "device": getDeviceType()
+    });
+
+    console.log('방문자 데이터:', data);
+
+    // Google Apps Script로 데이터 전송
+    axios.get('https://script.google.com/macros/s/AKfycbzizOOhpr__UIANizUSF1ErlPJnXpM3EWyxOO2WRBjfD2JpzNrWAkK8IyZwz6f_nBcX/exec?action=insert&table=visitors&data=' + data)
+        .then(response => {
+            console.log('방문자 추적 성공:', response.data);
+        })
+        .catch(error => {
+            console.error('방문자 추적 실패:', error);
+        });
+}
+
+// 고유 ID 생성 함수
+function generateUniqueId() {
+    return Date.now().toString() + Math.floor(Math.random() * 1000).toString();
+}
+
+// 페이지 로드 시 로그인 상태 확인 추가 (비활성화됨)
+// 인라인 방식으로 대체되어 모든 팝업 관련 기능 비활성화됨
+
+// Google API 로드 (안전 모드)
+function loadGoogleAPIs() {
+    console.log('Google API 로드 건너뜀 (안전 모드)');
+    return;
+}
+
+// 설정 버튼 추가 (안전 모드)
 function addSettingsButton() {
-    const settingsButton = `
-        <li class="nav-item">
-            <a class="nav-link" href="#" onclick="showSettingsModal()">
-                <span class="icn"><i class="fas fa-2x fa-cog"></i></span> 
-                설정
-            </a>
-        </li>
-    `;
-    $('.navbar-nav').append(settingsButton);
-} 
+    console.log('설정 버튼 추가 건너뜀 (안전 모드)');
+    return;
+}
+
+// 알림 권한 요청 (완전 비활성화)
+function requestNotificationPermission() {
+    console.log('❌ 알림 권한 요청 완전 비활성화 (팝업 방지)');
+    // 절대로 Notification.requestPermission() 호출하지 않음
+    return Promise.resolve('default');
+}
+
+// 알림 스케줄 설정 (완전 비활성화)
+function setupNotificationSchedule() {
+    console.log('❌ 알림 스케줄 설정 완전 비활성화 (팝업 방지)');
+    return;
+}
+
+// 브라우저 알림 관련 모든 함수 비활성화
+function showNotification() {
+    console.log('❌ 브라우저 알림 비활성화');
+    return;
+}
+
+function scheduleNotification() {
+    console.log('❌ 알림 스케줄링 비활성화');
+    return;
+}
+
+// 안전한 함수 호출을 위한 헬퍼
+function safeCall(funcName, ...args) {
+    try {
+        if (typeof window[funcName] === 'function') {
+            return window[funcName](...args);
+        } else {
+            console.log(`함수 ${funcName}는 사용할 수 없습니다 (안전 모드).`);
+            return null;
+        }
+    } catch (error) {
+        console.error(`함수 ${funcName} 호출 중 오류:`, error);
+        return null;
+    }
+}
+
+// 백업용 메인 콘텐츠 표시 함수 (순수 JavaScript)
+function forceShowMainContent() {
+    console.log('forceShowMainContent 실행 (백업 모드)');
+    
+    try {
+        // 순수 JavaScript로 요소 조작
+        const userInfoSection = document.getElementById('user-info-section');
+        const mainContent = document.getElementById('main-content');
+        const header = document.getElementById('tm-header');
+        
+        if (userInfoSection) {
+            userInfoSection.style.display = 'none';
+        }
+        
+        if (mainContent) {
+            mainContent.style.display = 'block';
+        }
+        
+        if (header) {
+            header.style.display = 'block';
+        }
+        
+        // 페이지 최상단으로 스크롤
+        window.scrollTo(0, 0);
+        
+        console.log('백업 모드로 메인 콘텐츠 표시 완료');
+        
+    } catch (error) {
+        console.error('forceShowMainContent 실행 중 오류:', error);
+    }
+);
