@@ -1,0 +1,279 @@
+/* 모바일 반응형 스타일 */
+
+@media (max-width: 768px) {
+    /* 전체 레이아웃 조정 */
+    .container {
+        max-width: 100% !important;
+        padding: 0 10px;
+    }
+    
+    .section {
+        padding: 40px 0;
+        margin-bottom: 20px;
+    }
+    
+    /* 네비게이션 모바일 최적화 */
+    .navbar-collapse {
+        width: 100% !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: 50px !important;
+        border-radius: 0 !important;
+    }
+    
+    .navbar-nav {
+        text-align: center;
+    }
+    
+    .navbar-nav .nav-item {
+        margin: 10px 0;
+        padding: 10px;
+        border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .navbar-nav .nav-link {
+        font-size: 18px;
+        padding: 15px !important;
+    }
+    
+    /* 배너 섹션 모바일 최적화 */
+    .banner-section {
+        min-height: 100vh;
+        padding: 60px 0 40px;
+    }
+    
+    .banner-section .container {
+        padding: 0 20px;
+    }
+    
+    .tm-banner-inner h1 {
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+    
+    .tm-banner-inner p {
+        font-size: 16px;
+        line-height: 1.5;
+    }
+    
+    /* 날짜 입력 모바일 최적화 */
+    .date-input-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    
+    #custom-date, #reset-date {
+        width: 100%;
+        margin: 5px 0;
+    }
+    
+    /* DND 토글 모바일 최적화 */
+    .dnd-toggle-container .row {
+        flex-direction: column;
+    }
+    
+    .dnd-toggle-container .col-md-6 {
+        width: 100%;
+        text-align: center !important;
+        margin-bottom: 15px;
+    }
+    
+    /* Our Service 모바일 레이아웃 */
+    .work-section .item {
+        flex: 0 0 100%;
+        max-width: 100%;
+        margin: 0 0 30px 0;
+    }
+    
+    .tm-work-item-inner {
+        padding: 30px 20px;
+        background-color: rgba(255,255,255,0.1);
+        border-radius: 10px;
+        margin: 0 10px;
+    }
+    
+    .tm-work-item-inner h3 {
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+    }
+    
+    .tm-work-item-inner p {
+        font-size: 14px;
+    }
+    
+    /* 체크리스트 모바일 최적화 */
+    .table-responsive {
+        border: none;
+        box-shadow: none;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .table {
+        font-size: 12px;
+        min-width: 600px;
+    }
+    
+    .table th, .table td {
+        padding: 8px 4px;
+        word-break: break-word;
+    }
+    
+    .checkbox-img {
+        width: 20px;
+        height: 20px;
+    }
+    
+    /* 작업실 모바일 최적화 */
+    .workspace-section .row {
+        flex-direction: column;
+    }
+    
+    .workspace-section .col-md-6 {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    
+    .workspace-summary .row {
+        flex-direction: column;
+    }
+    
+    .workspace-summary .col-md-6 {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+    
+    /* PDF 뷰어 모바일 최적화 */
+    #sample-pdf {
+        height: 300px;
+        width: 100%;
+    }
+    
+    /* 포워딩 섹션 모바일 최적화 */
+    .workspace-forwarding .row {
+        flex-direction: column;
+    }
+    
+    .workspace-forwarding .col-md-6 {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+    
+    .workspace-forwarding .d-flex {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .workspace-forwarding .form-check {
+        margin-bottom: 15px;
+        text-align: center;
+    }
+    
+    /* FAQ 모바일 최적화 */
+    .gallery-section .mx-auto.gallery-slider {
+        max-width: 100%;
+        margin: 0 10px;
+    }
+    
+    figure.effect-julia {
+        margin-bottom: 20px;
+    }
+    
+    .question-box {
+        height: auto;
+        min-height: 120px;
+        padding: 15px;
+    }
+    
+    .question-box h4 {
+        font-size: 16px;
+    }
+    
+    /* 연락처 섹션 모바일 최적화 */
+    .contact-section .row {
+        flex-direction: column;
+    }
+    
+    .contact-section .col-lg-8,
+    .contact-section .col-lg-4 {
+        width: 100%;
+        margin-bottom: 30px;
+    }
+    
+    /* 제출 폼 모바일 최적화 */
+    #reply {
+        margin: 20px 10px;
+        padding: 30px 15px;
+        position: relative;
+        z-index: 1000 !important;
+    }
+    
+    #reply input,
+    #reply textarea {
+        max-width: 100%;
+        width: 100%;
+    }
+    
+    #reply button {
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    /* 새 업무 팝업 모바일 최적화 */
+    .new-task-popup {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        max-width: none;
+        transform: translateY(-100px);
+    }
+    
+    .new-task-popup.show {
+        transform: translateY(0);
+    }
+    
+    /* 텍스트 크기 조정 */
+    .section h2 {
+        font-size: 1.8rem;
+        margin-bottom: 30px;
+    }
+    
+    .section p {
+        font-size: 14px;
+        line-height: 1.6;
+    }
+    
+    /* 버튼 크기 조정 */
+    .btn {
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+}
+
+/* 아주 작은 화면 (320px 이하) */
+@media (max-width: 320px) {
+    .container {
+        padding: 0 5px;
+    }
+    
+    .tm-banner-inner h1 {
+        font-size: 1.5rem;
+    }
+    
+    .table {
+        font-size: 10px;
+    }
+    
+    .table th, .table td {
+        padding: 4px 2px;
+    }
+    
+    .question-box h4 {
+        font-size: 14px;
+    }
+    
+    #reply {
+        padding: 20px 10px;
+    }
+} 
