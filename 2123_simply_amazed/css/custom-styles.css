@@ -351,16 +351,56 @@
 }
 
 /* 포워딩 섹션 스타일 */
+.workspace-forwarding {
+    background-color: #2c3e50 !important;
+    border-radius: 10px;
+    padding: 25px;
+    margin-top: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.workspace-forwarding h5 {
+    color: #ffffff !important;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
 .workspace-forwarding label,
 .workspace-forwarding .form-check-label {
-    color: #333333 !important;
+    color: #ffffff !important;
     font-weight: 500;
 }
 
 .workspace-forwarding input,
 .workspace-forwarding textarea {
-    color: #333333 !important;
+    color: #2c3e50 !important;
     background-color: #ffffff !important;
+    border: 2px solid #e9ecef !important;
+    border-radius: 8px;
+    padding: 12px 15px;
+    transition: all 0.3s ease;
+}
+
+.workspace-forwarding input:focus,
+.workspace-forwarding textarea:focus {
+    border-color: #007bff !important;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1) !important;
+    outline: none;
+}
+
+.workspace-forwarding .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    padding: 12px 25px;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.workspace-forwarding .btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+    transform: translateY(-1px);
 }
 
 /* 날짜 입력 관련 스타일 */
@@ -819,6 +859,187 @@
     font-size: 14px;
 }
 
+/* 사용자 정보 입력 섹션 스타일 */
+.user-info-section {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 10000;
+}
+
+.user-info-container {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+}
+
+.welcome-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.welcome-header h1 {
+    color: #2c3e50;
+    font-size: 2rem;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.welcome-header p {
+    color: #6c757d;
+    font-size: 1rem;
+    margin: 0;
+}
+
+.user-info-progress {
+    margin-bottom: 30px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #007bff, #0056b3);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    text-align: center;
+    margin-top: 10px;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+/* 사용자 정보 입력 단계별 스타일 */
+.user-info-step {
+    display: none;
+    text-align: center;
+}
+
+.user-info-step.active {
+    display: block;
+    animation: slideIn 0.5s ease;
+}
+
+.step-error {
+    margin-top: 10px;
+    font-size: 0.9rem;
+}
+
+.step-description {
+    color: #6c757d;
+    font-size: 0.95rem;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+/* Google 로그인 섹션 */
+.google-login-section {
+    margin-bottom: 20px;
+}
+
+.google-login-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 15px 20px;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    background-color: white;
+    color: #333;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.google-login-btn:hover {
+    border-color: #4285F4;
+    box-shadow: 0 4px 12px rgba(66, 133, 244, 0.2);
+    transform: translateY(-1px);
+}
+
+.google-login-btn:active {
+    transform: translateY(0);
+}
+
+.google-login-btn svg {
+    flex-shrink: 0;
+}
+
+/* 구분선 */
+.divider {
+    position: relative;
+    text-align: center;
+    margin: 25px 0;
+}
+
+.divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: #e9ecef;
+}
+
+.divider span {
+    background-color: white;
+    padding: 0 15px;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+/* 직접 입력 섹션 */
+.manual-input-section {
+    margin-bottom: 20px;
+}
+
+.manual-input-title {
+    font-size: 1.1rem;
+    color: #495057;
+    margin-bottom: 15px;
+    font-weight: 500;
+}
+
+/* 완료 단계 스타일 */
+.completion-message {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.completion-message h2 {
+    color: #28a745;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+.completion-message p {
+    color: #6c757d;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
 .onboarding-step {
     display: none;
 }
@@ -1199,6 +1420,44 @@ body {
         margin: 20px;
         padding: 20px;
     }
+    
+    /* 사용자 정보 입력 모바일 반응형 */
+    .user-info-container {
+        margin: 20px;
+        padding: 30px 20px;
+    }
+    
+    .welcome-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .step-title {
+        font-size: 1.2rem;
+    }
+    
+    .step-input {
+        padding: 12px;
+        font-size: 16px; /* iOS zoom 방지 */
+    }
+    
+    .step-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .step-btn {
+        width: 100%;
+        padding: 15px;
+    }
+    
+    .google-login-btn {
+        padding: 12px 15px;
+        font-size: 14px;
+    }
+    
+    .divider {
+        margin: 20px 0;
+    }
 }
 
 /* 모든 섹션의 텍스트 색상 강제 적용 */
@@ -1266,4 +1525,421 @@ body {
     color: #6c757d;
     margin-bottom: 25px;
     line-height: 1.6;
+}
+
+/* 새 업무 하이라이트 효과 - ysadms@yonsei.ac.kr 연동 */
+.new-task-highlight {
+    background-color: rgba(40, 167, 69, 0.1) !important;
+    animation: newTaskGlow 3s ease-in-out;
+    border-left: 4px solid #28a745 !important;
+    transition: all 0.3s ease;
+}
+
+@keyframes newTaskGlow {
+    0% { 
+        background-color: rgba(40, 167, 69, 0.3) !important;
+        transform: scale(1.02);
+        box-shadow: 0 0 15px rgba(40, 167, 69, 0.4);
+    }
+    50% { 
+        background-color: rgba(40, 167, 69, 0.2) !important; 
+        box-shadow: 0 0 10px rgba(40, 167, 69, 0.3);
+    }
+    100% { 
+        background-color: rgba(40, 167, 69, 0.1) !important;
+        transform: scale(1);
+        box-shadow: none;
+    }
+}
+
+/* Gmail 검색 로딩 화면 스타일 */
+.gmail-search-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    z-index: 10001;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.5s ease;
+}
+
+.gmail-search-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.gmail-search-content {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    animation: bounceIn 0.5s ease;
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    70% {
+        transform: scale(0.9);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.loading-animation {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    gap: 10px;
+}
+
+.running-icon {
+    font-size: 3rem;
+    animation: running 1s infinite;
+}
+
+@keyframes running {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(10px);
+    }
+}
+
+.loading-dots {
+    display: flex;
+    gap: 5px;
+}
+
+.loading-dots span {
+    width: 8px;
+    height: 8px;
+    background-color: #007bff;
+    border-radius: 50%;
+    animation: dotPulse 1.5s infinite;
+}
+
+.loading-dots span:nth-child(2) {
+    animation-delay: 0.5s;
+}
+
+.loading-dots span:nth-child(3) {
+    animation-delay: 1s;
+}
+
+@keyframes dotPulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.5);
+        opacity: 0.7;
+    }
+}
+
+.gmail-search-content h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.gmail-search-content p {
+    color: #6c757d;
+    margin-bottom: 30px;
+    font-size: 1rem;
+}
+
+.progress-bar-loading {
+    width: 100%;
+    height: 8px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+.progress-fill-loading {
+    height: 100%;
+    background: linear-gradient(90deg, #007bff, #0056b3);
+    border-radius: 4px;
+    animation: progressMove 2s infinite;
+    width: 30%;
+}
+
+@keyframes progressMove {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(350%);
+    }
+}
+
+/* Gmail 연동 상태 표시 */
+.gmail-notification {
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.gmail-notification .close {
+    opacity: 0.8;
+    font-size: 1.2rem;
+    text-shadow: none;
+}
+
+.gmail-notification .close:hover {
+    opacity: 1;
+    color: inherit;
+}
+
+/* 새 업무 알림 개선 */
+.new-task-notification {
+    border-left: 5px solid #ffc107;
+}
+
+.new-task-notification .notification-header {
+    font-weight: 600;
+}
+
+.new-task-notification .notification-body h6 {
+    color: white;
+    font-size: 1.1rem;
+}
+
+/* 체크리스트 테이블의 새 업무 강조 */
+.receipt-date-today {
+    font-weight: bold;
+    position: relative;
+}
+
+.receipt-date-today::after {
+    content: " (신규)";
+    color: #28a745;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+/* Gmail에서 가져온 업무 스타일 */
+.gmail-imported-task {
+    border-left: 3px solid #007bff;
+    background-color: rgba(0, 123, 255, 0.05) !important;
+}
+
+.gmail-imported-task:hover {
+    background-color: rgba(0, 123, 255, 0.1) !important;
+}
+
+/* Gmail 검색 관련 알림 스타일 */
+.gmail-notification {
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    animation: slideInFromRight 0.5s ease;
+}
+
+@keyframes slideInFromRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.gmail-notification .close {
+    opacity: 0.8;
+    font-size: 1.2rem;
+    text-shadow: none;
+}
+
+.gmail-notification .close:hover {
+    opacity: 1;
+    color: inherit;
+}
+
+/* 모바일에서 Gmail 로딩 화면 반응형 */
+@media (max-width: 768px) {
+    .gmail-search-content {
+        margin: 20px;
+        padding: 30px 20px;
+    }
+    
+    .gmail-search-content h3 {
+        font-size: 1.2rem;
+    }
+    
+    .running-icon {
+        font-size: 2.5rem;
+    }
+    
+    .gmail-notification {
+        left: 10px;
+        right: 10px;
+        max-width: none;
+        margin: 0 10px;
+    }
+}
+
+/* Gmail 포워딩 기능 관련 스타일 */
+.gmail-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.gmail-status .badge {
+    font-size: 0.85rem;
+    padding: 6px 12px;
+    border-radius: 15px;
+}
+
+.gmail-info-box {
+    border-left: 4px solid #17a2b8;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.forwarding-preview {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 2px dashed #dee2e6;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; max-height: 0; }
+    to { opacity: 1; max-height: 200px; }
+}
+
+.forwarding-preview h6 {
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.forwarding-preview .border {
+    border-color: #007bff !important;
+}
+
+.btn-group .btn {
+    border-radius: 8px;
+    margin-left: 5px;
+}
+
+.btn-group .btn:first-child {
+    margin-left: 0;
+}
+
+/* 포워딩 상태별 버튼 스타일 */
+.btn-primary.disabled,
+.btn-primary:disabled {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    opacity: 0.6;
+}
+
+.btn-outline-info.disabled,
+.btn-outline-info:disabled {
+    opacity: 0.6;
+}
+
+/* 포워딩 진행 상황 알림 */
+#forwarding-progress {
+    border-left: 4px solid #17a2b8;
+    background-color: rgba(23, 162, 184, 0.1);
+    border-radius: 8px;
+    animation: progressPulse 2s infinite;
+}
+
+@keyframes progressPulse {
+    0%, 100% { 
+        border-left-color: #17a2b8;
+        background-color: rgba(23, 162, 184, 0.1);
+    }
+    50% { 
+        border-left-color: #138496;
+        background-color: rgba(23, 162, 184, 0.2);
+    }
+}
+
+#forwarding-progress i {
+    color: #17a2b8;
+}
+
+/* 포워딩 성공 메시지 개선 */
+.alert-success {
+    border-left: 4px solid #28a745;
+    background-color: rgba(40, 167, 69, 0.1);
+    color: #155724;
+}
+
+.alert-danger {
+    border-left: 4px solid #dc3545;
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #721c24;
+}
+
+.alert-warning {
+    border-left: 4px solid #ffc107;
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #856404;
+}
+
+/* 포워딩 섹션 반응형 */
+@media (max-width: 768px) {
+    .btn-group {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        gap: 10px;
+    }
+    
+    .btn-group .btn {
+        width: 100%;
+        margin-left: 0;
+        margin-bottom: 5px;
+    }
+    
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .gmail-status {
+        justify-content: center;
+        margin-top: 10px;
+    }
+    
+    .forwarding-preview {
+        margin: 15px 0;
+    }
 } 

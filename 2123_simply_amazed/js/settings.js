@@ -14,7 +14,7 @@ function createSettingsModal() {
         <div id="settings-modal" class="settings-overlay">
             <div class="settings-container">
                 <div class="settings-header">
-                    <h2>Tel-U 설정</h2>
+                    <h2>Do Click 설정</h2>
                     <button class="settings-close" onclick="closeSettingsModal()">&times;</button>
                 </div>
                 
