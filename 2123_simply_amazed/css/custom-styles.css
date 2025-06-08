@@ -1942,4 +1942,91 @@ body {
     .forwarding-preview {
         margin: 15px 0;
     }
+}
+
+/* Gmail 테스트 결과 스타일 */
+.gmail-test-results {
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.gmail-test-results h6 {
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.gmail-test-results ul li {
+    padding: 3px 0;
+    font-size: 0.9rem;
+}
+
+.gmail-test-results .alert {
+    margin-bottom: 10px;
+    padding: 10px;
+    font-size: 0.9rem;
+}
+
+.gmail-test-results .btn-sm {
+    padding: 5px 12px;
+    font-size: 0.8rem;
+}
+
+/* Gmail 상태 버튼 개선 */
+.gmail-status .btn-sm {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 12px;
+}
+
+.gmail-status .badge {
+    font-size: 0.8rem;
+    padding: 6px 10px;
+}
+
+/* 행정실 이메일 알림 */
+.admin-email-notice {
+    animation: slideInFromRight 0.5s ease-out;
+    border-left: 4px solid #ffc107;
+}
+
+.admin-email-notice .close:hover {
+    color: #000;
+    opacity: 0.75;
+}
+
+/* 시작하기 버튼 활성화 애니메이션 */
+.step-btn.primary:active {
+    transform: scale(0.98);
+}
+
+/* Gmail 검색 시작 로딩 개선 */
+.gmail-search-overlay h3 {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+/* 체크리스트 교체 효과 */
+.gmail-imported-task {
+    animation: fadeInUp 0.5s ease forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.gmail-imported-task:nth-child(1) { animation-delay: 0.1s; }
+.gmail-imported-task:nth-child(2) { animation-delay: 0.2s; }
+.gmail-imported-task:nth-child(3) { animation-delay: 0.3s; }
+.gmail-imported-task:nth-child(4) { animation-delay: 0.4s; }
+.gmail-imported-task:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 } 

@@ -34,7 +34,8 @@
         /* 체크리스트 스타일 */
         .checklist-section {
             background-color: #f8f9fa;
-            padding: 60px 0;
+            padding: 40px 0 80px 0; /* 위쪽 패딩 줄이고 아래쪽 늘림 */
+            margin-top: -20px; /* 위쪽으로 더 올림 */
         }
         
         .checkbox-img {
@@ -122,7 +123,41 @@
             100% { opacity: 1; }
         }
         
-        /* Our Service 섹션의 아이템 위치 조정 */
+        /* 작업실 섹션 스타일 개선 */
+        .workspace-section {
+            padding: 60px 0 120px 0; /* 아래쪽 패딩 대폭 증가 */
+            margin-bottom: 60px; /* 아래쪽 마진 추가 */
+        }
+        
+        /* 포워딩 기능 박스 높이 개선 */
+        .workspace-forwarding {
+            min-height: 650px; /* 최소 높이 설정 */
+            padding: 30px !important; /* 패딩 증가 */
+        }
+        
+        /* 포워딩 폼 요소들 간격 조정 */
+        .workspace-forwarding .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .workspace-forwarding .row {
+            margin-bottom: 20px;
+        }
+        
+        .workspace-forwarding .gmail-info-box {
+            margin-bottom: 25px;
+        }
+        
+        .workspace-forwarding .forwarding-preview {
+            margin-bottom: 25px;
+        }
+        
+        /* Our Service 섹션 위치 조정 */
+        .work-section {
+            padding: 100px 0 120px 0; /* 위아래 패딩 대폭 증가 */
+            margin-top: 80px; /* 위쪽 마진 추가 */
+        }
+        
         .work-section .item:nth-child(1) {
             margin-top: 0;
         }
@@ -145,6 +180,12 @@
         
         .work-section .item:nth-child(6) {
             margin-top: 150px;
+        }
+        
+        /* FAQ 섹션 위치 조정 */
+        .faq-section {
+            padding: 120px 0 140px 0; /* 위아래 패딩 대폭 증가 */
+            margin-top: 100px; /* 위쪽 마진 추가 */
         }
         
         /* FAQ 질문 박스 스타일 수정 - 더 밝은 색상으로 변경 */
@@ -301,6 +342,39 @@
             font-weight: bold;
             color: #ffc107; /* 강조 색상 - 노란색 */
         }
+        
+        /* Contact 섹션 위치 조정 */
+        #reply {
+            padding: 150px 0 100px 0; /* 위아래 패딩 대폭 증가 */
+            margin-top: 120px; /* 위쪽 마진 추가 */
+        }
+        
+        /* 전체 섹션 간격 보장 */
+        .section {
+            position: relative;
+            clear: both;
+        }
+        
+        /* 각 섹션 최소 간격 보장 */
+        #section-checklist {
+            z-index: 1;
+        }
+        
+        #section-workspace {
+            z-index: 2;
+        }
+        
+        #section-2 {
+            z-index: 3;
+        }
+        
+        #section-3 {
+            z-index: 4;
+        }
+        
+        #reply {
+            z-index: 5;
+        }
     </style>
 </head>
 
@@ -441,7 +515,7 @@
                         
                         <!-- 5단계: 행정실 이메일 -->
                         <div class="user-info-step" data-step="4">
-                            <h3 class="step-title">학과 행정실 이메일을 알려주세요</h3>
+                            <h3 class="step-title">행정실 이메일을 알려주세요</h3>
                             <input type="email" id="inline-admin-email-input" class="step-input" placeholder="admin@department.ac.kr">
                             <div class="step-error text-danger" style="display: none;"></div>
                             <div class="step-buttons">
@@ -466,7 +540,7 @@
                             <div class="completion-message">
                                 <h2>🎉 설정 완료!</h2>
                                 <p>Do Click 사용 준비가 모두 끝났습니다.<br>이제 효율적인 업무 관리를 시작하세요!</p>
-                                <button class="step-btn primary" onclick="console.log('시작하기 버튼 클릭됨'); try { showMainContent(); } catch(e) { console.error('showMainContent 오류:', e); forceShowMainContent(); }">시작하기</button>
+                                <button class="step-btn primary" onclick="console.log('시작하기 버튼 클릭됨'); try { startDoClickService(); } catch(e) { console.error('startDoClickService 오류:', e); forceShowMainContent(); }">시작하기</button>
                             </div>
                         </div>
                     </div>
@@ -502,7 +576,7 @@
                     <div class="tm-banner-inner">
                         <h1 class="text-white">Do Click</h1>
                         <p class="text-white" id="task-summary">로딩 중...</p>
-                        <p class="text-white">행정업무는 Do Click가 처리했으니 안심하라구!</p>
+                        <!-- <p class="text-white">행정업무는 Do Click가 처리했으니 안심하라구!</p> -->
                     </div>
                 </div>
             </div>
@@ -637,8 +711,8 @@
                                 <h5>처리 프로세스</h5>
                                     <div id="process-container">
                                     <p>업무를 선택하면 상세 프로세스가 표시됩니다.</p>
+                                    </div>
                                 </div>
-                            </div>
                         </div>
 
                         <!-- 포워딩 기능 -->
@@ -647,13 +721,16 @@
                                 <h5 class="mb-0">📧 업무 포워딩 (Gmail 연동)</h5>
                                 <div id="gmail-status-indicator" class="gmail-status">
                                     <span class="badge badge-secondary">Gmail 연동 확인 중...</span>
-                                </div>
                             </div>
-                            
+                        </div>
+
                             <div class="gmail-info-box mb-3 p-3 bg-info text-white rounded" style="display: none;">
                                 <i class="fas fa-info-circle mr-2"></i>
                                 <strong>Gmail 연동 안내:</strong> 이 기능을 사용하려면 Google 계정으로 로그인이 필요합니다. 
                                 포워딩 이메일은 귀하의 Gmail 계정에서 직접 전송됩니다.
+                                <button class="btn btn-sm btn-outline-light mt-2" onclick="testGmailConnection()">
+                                    <i class="fas fa-check-circle mr-1"></i>연결 테스트
+                                </button>
                             </div>
                             
                             <div class="row">
@@ -681,7 +758,7 @@
                                     <div><strong>제목:</strong> <span id="preview-subject">-</span></div>
                                     <div><strong>발신자:</strong> <span id="preview-from">-</span></div>
                                     <div><strong>수신자:</strong> <span id="preview-to">-</span></div>
-                                </div>
+                            </div>
                             </div>
                             
                             <div class="d-flex justify-content-between align-items-center">
@@ -695,8 +772,8 @@
                                     </button>
                                     <button id="forwarding-submit" class="btn btn-primary">
                                         <i class="fas fa-paper-plane mr-2"></i>Gmail로 전송
-                                    </button>
-                                </div>
+                                </button>
+                            </div>
                             </div>
                             <div id="forwarding-result" class="mt-3" style="display: none;"></div>
                         </div>
@@ -766,10 +843,10 @@
                     <div class="faq-container">
                         <div class="faq-item">
                             <div class="faq-question-text">
-                                <h4>Q. Do Click는 무엇인가요?</h4>
+                                <h4>Q. Do Click은은 무엇인가요?</h4>
                             </div>
                             <div class="faq-answer-text">
-                                <p><strong>A.</strong> Do Click는 복잡한 대학원 행정업무를 체계적으로 관리할 수 있도록 도와주는 플랫폼입니다. 마감일 관리, 업무 포워딩, 샘플 문서 제공 등의 기능을 통해 효율적인 업무 처리를 지원합니다.</p>
+                                <p><strong>A.</strong> Do Click은 복잡한 대학원 행정업무를 체계적으로 관리할 수 있도록 도와주는 플랫폼입니다. 마감일 관리, 업무 포워딩, 샘플 문서 제공 등의 기능을 통해 효율적인 업무 처리를 지원합니다.</p>
                             </div>
                         </div>
                         
@@ -781,8 +858,7 @@
                                 <p><strong>A.</strong> XyZ 가설은 다음과 같습니다:</p>
                                 <ul>
                                     <li>"내가 속한 연구실의 대학원생" 중 <strong>"75%"</strong>는 <strong>"행정 업무 관리를 위해"</strong> 나의 서비스를 이용할 것이다.</li>
-                                    <!-- <li>"내가 속한 연구실의 대학원생" 중 <strong>"85%"</strong>는 <strong>"행정 업무 처리로 인해 연구가 방해된다"</strong>고 인식할 것이다.</li> -->
-                                    <li>"연세대학교 행정실" 중 <strong>"75%"</strong>는 <strong>"대학원생들의 부정확한 업무 처리로 불편을 겪을 것"</strong>이다.</li>
+                                    <li>"한국의 대학원생" 중 <strong>"50%"</strong>는 <strong>"행정 업무 관리를 위해"</strong> 나의 서비스를 이용할 것이다.</li>
                                 </ul>
                             </div>
                         </div>
@@ -797,8 +873,7 @@
                                     <li>체크리스트를 통한 업무 관리</li>
                                     <li>샘플 문서 및 작성 가이드 제공</li>
                                     <li>업무 포워딩 기능</li>
-                                    <li>마감일 알림 시스템</li>
-                                    <li>방해금지모드</li>
+                                    <li>마감일 알림 시스템과 방해금지모드</li>
                                 </ul>
                             </div>
                         </div>
