@@ -18,7 +18,7 @@ console.log('🔧 API 설정 로드됨:', {
 });
 
 // 행정사무실 이메일 설정
-const ADMIN_EMAIL = 'ysadms@yonsei.ac.kr';
+const ADMIN_EMAIL = 'computing@yonsei.ac.kr';
 const ADMIN_EMAIL_DOMAINS = [
     'yonsei.ac.kr',
     'admin.yonsei.ac.kr',

@@ -945,8 +945,7 @@ function requestGmailLogin() {
     if (typeof google !== 'undefined' && google.accounts && google.accounts.oauth2) {
         console.log('🔐 직접 OAuth 토큰 요청...');
         const tokenClient = google.accounts.oauth2.initTokenClient({
-            // client_id: '96805366744-nb6s5bh1089o5vh3020in2kv3atq92ug.apps.googleusercontent.com',
-            client_id: '',
+            client_id: window.GOOGLE_ENV?.CLIENT_ID,
             scope: 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send',
             callback: handleGmailAuthForForwarding,
         });
@@ -1761,8 +1760,7 @@ function handleGoogleLogin() {
     try {
         // Google Identity Services 초기화
         google.accounts.id.initialize({
-            // client_id: '96805366744-nb6s5bh1089o5vh3020in2kv3atq92ug.apps.googleusercontent.com',
-            client_id: '',
+            client_id: window.GOOGLE_ENV?.CLIENT_ID,
             callback: handleGoogleSignIn,
             auto_select: false,
             cancel_on_tap_outside: false
@@ -1795,8 +1793,7 @@ function initiateGoogleOAuth() {
     }
     
     const tokenClient = google.accounts.oauth2.initTokenClient({
-        // client_id: '96805366744-nb6s5bh1089o5vh3020in2kv3atq92ug.apps.googleusercontent.com',
-        client_id: '',
+        client_id: window.GOOGLE_ENV?.CLIENT_ID,
         scope: 'openid email profile',
         callback: handleGoogleOAuthResponse,
     });
