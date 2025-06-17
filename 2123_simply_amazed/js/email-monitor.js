@@ -1,13 +1,8 @@
 // 이메일 모니터링 및 분석
 
-// 행정사무실 이메일 설정
-const ADMIN_EMAIL = 'ysadms@yonsei.ac.kr';
-const ADMIN_EMAIL_DOMAINS = [
-    'yonsei.ac.kr',
-    'admin.yonsei.ac.kr',
-    'eng.yonsei.ac.kr',
-    'cs.yonsei.ac.kr'
-];
+// 행정사무실 이메일 설정 (gmail-api.js에서 이미 선언된 것 사용)
+// const ADMIN_EMAIL = 'ysadms@yonsei.ac.kr'; - 중복 선언 제거
+// const ADMIN_EMAIL_DOMAINS = [...]; - 중복 선언 제거
 
 // 긴급 키워드 리스트
 const URGENT_KEYWORDS = [

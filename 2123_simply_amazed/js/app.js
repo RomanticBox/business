@@ -41,7 +41,7 @@ const DEVELOPMENT_MODE = true; // true로 설정하면 매번 사용자 정보 �
 // 업무 데이터 정의
 const taskData = {
     "대표 연구실적 증빙자료": {
-        samplePdf: "sample1.pdf",
+        samplePdf: "thesis_review_application.pdf",
         process: `
             <h5>1. 연구실적 정리</h5>
             <p>최근 3년간의 주요 연구 성과를 시간순으로 정리합니다.</p>
@@ -63,8 +63,21 @@ const taskData = {
             <p>정해진 양식에 맞춰 서류를 작성하고 제출합니다.</p>
         `
     },
+    "개인정보 처리 동의서 제출": {
+        samplePdf: "personal_info_consent.pdf",
+        process: `
+            <h5>1. 개인정보 처리 동의서 다운로드</h5>
+            <p>제공된 양식을 다운로드하여 확인합니다.</p>
+            
+            <h5>2. 동의서 작성</h5>
+            <p>개인정보 처리 방침을 숙지하고 동의서를 작성합니다.</p>
+            
+            <h5>3. 서명 및 제출</h5>
+            <p>서명을 완료하고 행정실에 제출합니다.</p>
+        `
+    },
     "연구실 안전 교육 이수증 제출": {
-        samplePdf: "safety-education.pdf",
+        samplePdf: "safety_training_certificate.pdf",
         process: `
             <h5>1. 온라인 안전교육 수강</h5>
             <p>대학 LMS 시스템에서 필수 안전교육을 수강합니다.</p>
@@ -74,6 +87,19 @@ const taskData = {
             
             <h5>3. 제출</h5>
             <p>이수증을 지정된 양식으로 제출합니다.</p>
+        `
+    },
+    "세미나 참석 확인서 제출": {
+        samplePdf: "seminar_attendance.pdf",
+        process: `
+            <h5>1. 세미나 참석</h5>
+            <p>지정된 세미나에 참석하여 출석 확인을 받습니다.</p>
+            
+            <h5>2. 확인서 작성</h5>
+            <p>세미나 참석 확인서를 작성합니다.</p>
+            
+            <h5>3. 제출</h5>
+            <p>작성된 확인서를 행정실에 제출합니다.</p>
         `
     }
 };
@@ -154,7 +180,7 @@ function updateTaskSummary() {
         새로운 업무 : <strong>${newTasksToday}개</strong><br>
         남은 업무 : <strong>${remainingTasks}개</strong><br>
         중요 업무 : <strong>${importantTasks}개</strong><br><br>
-        행정업무는 Do Click이이 처리했으니 안심하라구!
+        행정업무는 Do Click이 처리했으니 안심하라구!
     `;
     
     $('#task-summary').html(taskSummaryHtml);
@@ -237,6 +263,9 @@ function showWorkspaceContent(taskContent, status, deadline, receiptDate, assign
     $('#workspace-initial-message').hide();
     $('#workspace-content').show();
     
+    // 이전 PDF viewer 상태 정리
+    clearPdfViewer();
+    
     $('#ws-status').text(status === 'checked' ? '완료' : '미완료');
     $('#ws-deadline').html(getDaysRemaining(deadline));
     $('#ws-receipt-date').text(formatDate(receiptDate));
@@ -245,12 +274,65 @@ function showWorkspaceContent(taskContent, status, deadline, receiptDate, assign
     $('#ws-forwarding').text(forwarding || '-');
     
     const task = taskData[taskContent];
-    if (task) {
-        $('#sample-pdf').attr('src', `samples/${task.samplePdf}`);
+    if (task && task.samplePdf) {
+        console.log('📄 PDF 로딩 시도:', `samples/${task.samplePdf}`);
+        
+        // PDF 로딩 상태 표시
+        const pdfContainer = $('#sample-pdf').parent();
+        pdfContainer.prepend('<div id="pdf-loading" class="text-center p-3"><i class="fas fa-spinner fa-spin"></i> PDF 로딩 중...</div>');
+        
+        // PDF 소스 설정 (캐시 방지를 위한 타임스탬프 추가)
+        const timestamp = new Date().getTime();
+        const pdfUrl = `samples/${task.samplePdf}?t=${timestamp}`;
+        $('#sample-pdf').attr('src', pdfUrl);
+        
+        // PDF 로딩 완료/실패 처리
+        $('#sample-pdf').on('load', function() {
+            console.log('✅ PDF 로딩 성공');
+            $('#pdf-loading').remove();
+        });
+        
+        $('#sample-pdf').on('error', function() {
+            console.warn('❌ PDF 로딩 실패, 대체 방안 제공');
+            $('#pdf-loading').remove();
+            
+            // 대체 컨텐츠 표시
+            $(this).hide();
+            pdfContainer.append(`
+                <div class="pdf-fallback text-center p-4 border rounded bg-light">
+                    <i class="fas fa-file-pdf fa-3x text-danger mb-3"></i>
+                    <h5>📄 샘플 문서</h5>
+                    <p class="mb-3">브라우저에서 PDF를 직접 표시할 수 없습니다.</p>
+                    <div class="btn-group">
+                        <a href="${pdfUrl}" target="_blank" class="btn btn-primary">
+                            <i class="fas fa-external-link-alt mr-2"></i>새 창에서 열기
+                        </a>
+                        <a href="${pdfUrl}" download="${task.samplePdf}" class="btn btn-success">
+                            <i class="fas fa-download mr-2"></i>다운로드
+                        </a>
+                    </div>
+                    <small class="text-muted d-block mt-2">
+                        파일명: ${task.samplePdf}
+                    </small>
+                </div>
+            `);
+        });
+        
         $('#process-container').html(task.process);
     } else {
         $('#sample-pdf').attr('src', '');
         $('#process-container').html('<p>해당 업무에 대한 프로세스 정보가 준비 중입니다.</p>');
+        
+        // 샘플 문서가 없는 경우 안내 메시지
+        const pdfContainer = $('#sample-pdf').parent();
+        pdfContainer.append(`
+            <div class="no-pdf-message text-center p-4 border rounded bg-light">
+                <i class="fas fa-info-circle fa-2x text-info mb-3"></i>
+                <h5>📋 샘플 문서 준비 중</h5>
+                <p>이 업무에 대한 샘플 문서는 현재 준비 중입니다.</p>
+                <p class="text-muted">프로세스 가이드를 참고해주세요.</p>
+            </div>
+        `);
     }
 }
 
@@ -266,6 +348,9 @@ function showDefaultWorkspaceContent() {
     $('#ws-task-content').text('체크리스트에서 업무를 클릭하면 상세 정보가 표시됩니다');
     $('#ws-assignee').text('-');
     $('#ws-forwarding').text('-');
+    
+    // 이전 PDF 관련 요소들 정리
+    clearPdfViewer();
     
     // 기본 샘플 문서와 프로세스 표시
     $('#sample-pdf').attr('src', '');
@@ -304,6 +389,24 @@ function showDefaultWorkspaceContent() {
             </div>
         </div>
     `);
+}
+
+// PDF Viewer 정리 함수
+function clearPdfViewer() {
+    const pdfContainer = $('#sample-pdf').parent();
+    
+    // 이전 로딩 메시지, 오류 메시지 제거
+    $('#pdf-loading').remove();
+    $('.pdf-fallback').remove();
+    $('.no-pdf-message').remove();
+    
+    // PDF iframe 이벤트 리스너 제거
+    $('#sample-pdf').off('load error');
+    
+    // PDF iframe 보이기 (숨김 해제)
+    $('#sample-pdf').show();
+    
+    console.log('🧹 PDF viewer 정리 완료');
 }
 
 // Gmail을 통한 실제 포워딩 기능
@@ -355,6 +458,10 @@ function handleForwarding() {
         return;
     }
     
+    // 기존 진행 상황 및 결과 메시지 모두 제거
+    hideForwardingProgress(); // 기존 애니메이션 정리
+    $('#forwarding-result').remove();
+    
     // 버튼 비활성화 및 로딩 표시
     $('#forwarding-submit').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> 이메일 전송 중...');
     
@@ -365,35 +472,78 @@ function handleForwarding() {
     sendForwardingEmail(email, name, reason, taskContent, notifyOriginal);
 }
 
-// Gmail API를 통한 이메일 전송
+// 전달 이메일 전송 함수 (Gmail API 사용)
 async function sendForwardingEmail(toEmail, toName, reason, taskContent, notifyOriginal) {
+    console.log('📧 Gmail을 통한 포워딩 이메일 전송 시작...');
+    
     try {
-        console.log('📧 Gmail API를 통한 이메일 전송 시작...');
-        showForwardingProgress('사용자 정보를 확인하고 있습니다...');
+        // 데모 모드 확인
+        if (typeof isDemoMode !== 'undefined' && isDemoMode) {
+            console.log('🧪 데모 모드: 포워딩 이메일 시뮬레이션');
+            
+            // 시뮬레이션 지연
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // 애니메이션 숨기기 (데모 모드에서도)
+            hideForwardingProgress();
+            
+            // 가상 성공 처리
+            console.log('✅ 데모 모드: 이메일 전송 시뮬레이션 완료');
+            handleForwardingSuccess(toName, taskContent, toEmail);
+            
+            // 데모 모드 알림
+            setTimeout(() => {
+                showInlineNotification(`데모 모드: "${taskContent}" 업무가 ${toName}(${toEmail})에게 포워딩되었습니다. 실제 Gmail 연동을 위해서는 Google API 키 설정이 필요합니다.`, 'info', 8000);
+            }, 500);
+            
+            return { result: 'demo_success' };
+        }
         
-        // 현재 로그인된 사용자 정보 가져오기
-        const userInfo = await getCurrentUserInfo();
-        const fromEmail = userInfo.email;
-        const fromName = userInfo.name || '사용자';
+        // Gmail API 상태 확인 강화
+        if (!checkGmailAPIReady()) {
+            throw new Error('Google API 클라이언트가 초기화되지 않았습니다.');
+        }
         
-        console.log('👤 발신자 정보:', { fromEmail, fromName });
-        console.log('📮 수신자 정보:', { toEmail, toName });
+        // 인증 상태 확인
+        if (!isAuthenticated) {
+            throw new Error('Gmail 연동이 필요합니다. 위의 "로그인" 버튼을 클릭해주세요.');
+        }
         
-        showForwardingProgress('이메일 내용을 작성하고 있습니다...');
+        // GAPI 클라이언트 확인
+        if (!gapi || !gapi.client || !gapi.client.gmail) {
+            throw new Error('Gmail API 클라이언트를 찾을 수 없습니다.');
+        }
         
-        // 이메일 제목 생성
-        const subject = `[업무 포워딩] ${taskContent}`;
+        // 토큰 확인
+        const token = gapi.client.getToken();
+        if (!token || !token.access_token) {
+            throw new Error('Gmail 인증 토큰이 유효하지 않습니다. 다시 로그인해주세요.');
+        }
+        
+        console.log('✅ Gmail API 상태 확인 완료');
+        
+        // 사용자 정보 가져오기
+        const currentUser = await getCurrentUserInfo();
         
         // 이메일 본문 생성
-        const emailBody = createForwardingEmailBody(fromName, toName, taskContent, reason);
+        const emailBody = createForwardingEmailBody(
+            currentUser.name, 
+            toName, 
+            taskContent, 
+            reason
+        );
         
-        // RFC 2822 형식으로 이메일 메시지 생성
-        const rawMessage = createRawMessage(fromEmail, toEmail, subject, emailBody);
+        // Raw 메시지 생성
+        const rawMessage = createRawMessage(
+            currentUser.email,
+            toEmail,
+            `[업무 포워딩] ${taskContent}`,
+            emailBody
+        );
         
-        console.log('📝 이메일 메시지 생성 완료');
-        showForwardingProgress('Gmail API를 통해 이메일을 전송하고 있습니다...');
+        console.log('📮 Gmail API로 이메일 전송 중...');
         
-        // Gmail API로 이메일 전송
+        // Gmail API를 통해 이메일 전송
         const response = await gapi.client.gmail.users.messages.send({
             userId: 'me',
             resource: {
@@ -402,18 +552,22 @@ async function sendForwardingEmail(toEmail, toName, reason, taskContent, notifyO
         });
         
         console.log('✅ 이메일 전송 성공:', response);
-        showForwardingProgress('이메일 전송이 완료되었습니다!');
         
-        // 0.5초 지연 후 성공 처리 (사용자가 완료 메시지를 볼 수 있도록)
-        setTimeout(() => {
-            hideForwardingProgress();
-            handleForwardingSuccess(toName, taskContent, toEmail);
-        }, 500);
+        // 성공 처리
+        handleForwardingSuccess(toName, taskContent, toEmail);
+        
+        // 원래 할당자에게 알림 (옵션)
+        if (notifyOriginal) {
+            // 원래 할당자 알림 로직 (향후 구현)
+            console.log('📢 원래 할당자에게 알림 전송 예정');
+        }
+        
+        return response;
         
     } catch (error) {
-        console.error('❌ 이메일 전송 실패:', error);
-        hideForwardingProgress();
+        console.error('❌ 포워딩 이메일 전송 실패:', error);
         handleForwardingError(error);
+        throw error;
     }
 }
 
@@ -482,63 +636,13 @@ async function getCurrentUserInfo() {
     }
 }
 
-// 포워딩 이메일 본문 생성
+// 포워딩 이메일 본문 생성 (처리 프로세스 포함)
 function createForwardingEmailBody(fromName, toName, taskContent, reason) {
-    const currentDate = new Date().toLocaleDateString('ko-KR');
-    const currentTime = new Date().toLocaleTimeString('ko-KR', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
-    });
+    // 업무에 대한 처리 프로세스 정보 가져오기
+    const processInfo = getProcessInfoForTask(taskContent);
     
-    // 업무 상세 정보 추출
-    const deadlineInfo = $('#ws-deadline').text() || '확인 필요';
-    const receiptDate = $('#ws-receipt-date').text() || '정보 없음';
-    const assignee = $('#ws-assignee').text() || '정보 없음';
-    
-    return `
-안녕하세요, ${toName}님
-
-${fromName}님께서 다음 업무를 귀하에게 포워딩하였습니다.
-
-┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃                   📋 업무 포워딩 정보                    ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-📌 업무 내용: ${taskContent}
-
-📅 포워딩 일시: ${currentDate} ${currentTime}
-👤 포워딩자: ${fromName}
-👥 수신자: ${toName}
-
-📋 기존 업무 정보:
-├─ 마감일: ${deadlineInfo}
-├─ 접수일: ${receiptDate}
-└─ 원 할당자: ${assignee}
-
-📝 포워딩 사유:
-${reason}
-
-┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃                    ⚠️ 중요 안내                       ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-1. 본 업무는 Do Click 시스템을 통해 포워딩된 것입니다.
-2. 업무 수행 후 시스템에서 완료 처리해주시기 바랍니다.
-3. 문의사항은 ${fromName}님께 직접 연락해주세요.
-
-▶ Do Click 시스템 접속: https://your-domain.com
-▶ 업무 관리 가이드: https://help.do-click.com
-
-감사합니다.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Do Click - 대학원생 행정업무 도우미
-언제 다하지? 하기도 전에 끝나요!
-
-본 메일은 자동으로 발송된 메일입니다.
-회신하지 마시고, 문의사항은 포워딩자에게 직접 연락바랍니다.
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    `.trim();
+    // 향상된 포워딩 이메일 본문 생성
+    return createEnhancedForwardingEmailBody(fromName, toName, taskContent, reason, processInfo);
 }
 
 // RFC 2822 형식의 이메일 메시지 생성
@@ -561,6 +665,9 @@ function createRawMessage(from, to, subject, body) {
 function handleForwardingSuccess(toName, taskContent, toEmail) {
     console.log('🎉 포워딩 성공 처리');
     
+    // 애니메이션 숨기기 (최우선 처리)
+    hideForwardingProgress();
+    
     // 성공 메시지 표시
     showForwardingResult('success', `${toName}님(${toEmail})에게 "${taskContent}" 업무가 성공적으로 포워딩되었습니다!`);
     
@@ -580,7 +687,7 @@ function handleForwardingSuccess(toName, taskContent, toEmail) {
     });
     
     // 버튼 상태 복구
-    $('#forwarding-submit').prop('disabled', false).html('<i class="fas fa-paper-plane mr-2"></i>포워딩 신청');
+    $('#forwarding-submit').prop('disabled', false).html('<i class="fas fa-paper-plane mr-2"></i>Gmail로 전송');
 }
 
 // 포워딩 실패 처리
@@ -591,6 +698,9 @@ function handleForwardingError(error) {
         message: error.message,
         result: error.result
     });
+    
+    // 애니메이션 숨기기 (최우선 처리)
+    hideForwardingProgress();
     
     let errorMessage = '이메일 전송 중 오류가 발생했습니다.';
     let actionButton = '';
@@ -647,9 +757,18 @@ function showForwardingProgress(message) {
 
 // 포워딩 진행 상황 숨기기
 function hideForwardingProgress() {
-    $('#forwarding-progress').fadeOut(function() {
+    console.log('🔄 포워딩 애니메이션 종료 중...');
+    
+    // 즉시 페이드아웃 및 제거
+    $('#forwarding-progress').stop(true, true).fadeOut(300, function() {
         $(this).remove();
+        console.log('✅ 포워딩 애니메이션 완전히 종료됨');
     });
+    
+    // 안전장치: 500ms 후 강제 제거 (혹시 fadeOut이 실패할 경우)
+    setTimeout(() => {
+        $('#forwarding-progress').remove();
+    }, 500);
 }
 
 // Gmail 연결 상태 확인
@@ -695,14 +814,46 @@ async function checkGmailConnectionStatus() {
             
         } catch (error) {
             console.error('❌ Gmail API 접근 실패:', error);
-            statusIndicator.html(`
-                <span class="badge badge-warning">
-                    <i class="fas fa-exclamation-triangle mr-1"></i>Gmail 권한 필요
-                </span>
-                <button class="btn btn-sm btn-outline-primary ml-2" onclick="requestGmailPermission()">
-                    권한 요청
-                </button>
-            `);
+            
+            // 403 오류인 경우 자동으로 강제 로그인 시도
+            if (error.status === 403 || (error.result && error.result.error && error.result.error.code === 403)) {
+                console.log('🔄 403 오류 감지, 자동 강제 로그인 시도...');
+                statusIndicator.html(`
+                    <span class="badge badge-info">
+                        <i class="fas fa-spinner fa-spin mr-1"></i>자동 로그인 시도 중...
+                    </span>
+                `);
+                
+                // 강제 로그인 자동 시도
+                setTimeout(() => {
+                    if (typeof requestGmailLogin === 'function') {
+                        requestGmailLogin(true); // 강제 모드
+                    } else if (typeof window.requestGmailLogin === 'function') {
+                        window.requestGmailLogin(true); // Gmail API 파일의 함수 사용
+                    } else {
+                        // 수동 버튼 표시로 폴백
+                        statusIndicator.html(`
+                            <span class="badge badge-warning">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>Gmail 권한 필요
+                            </span>
+                            <button class="btn btn-sm btn-outline-primary ml-2" onclick="requestGmailPermission()">
+                                권한 요청
+                            </button>
+                        `);
+                    }
+                }, 1000);
+            } else {
+                // 다른 오류인 경우 기존 처리
+                statusIndicator.html(`
+                    <span class="badge badge-warning">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>Gmail 권한 필요
+                    </span>
+                    <button class="btn btn-sm btn-outline-primary ml-2" onclick="requestGmailPermission()">
+                        권한 요청
+                    </button>
+                `);
+            }
+            
             infoBox.show();
             updateForwardingUIForLoggedOut();
         }
@@ -736,6 +887,9 @@ function updateForwardingUIForLoggedOut() {
 
 // 포워딩 미리보기 표시
 async function showForwardingPreview() {
+    // 기존 애니메이션 정리
+    hideForwardingProgress();
+    $('#forwarding-result').remove();
     const toEmail = $('#forwarding-email').val().trim();
     const toName = $('#forwarding-name').val().trim();
     const taskContent = $('#ws-task-content').text().trim();
@@ -791,7 +945,8 @@ function requestGmailLogin() {
     if (typeof google !== 'undefined' && google.accounts && google.accounts.oauth2) {
         console.log('🔐 직접 OAuth 토큰 요청...');
         const tokenClient = google.accounts.oauth2.initTokenClient({
-            client_id: '96805366744-nb6s5bh1089o5vh3020in2kv3atq92ug.apps.googleusercontent.com',
+            // client_id: '96805366744-nb6s5bh1089o5vh3020in2kv3atq92ug.apps.googleusercontent.com',
+            client_id: '',
             scope: 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send',
             callback: handleGmailAuthForForwarding,
         });
@@ -804,7 +959,12 @@ function requestGmailLogin() {
 // Gmail 권한 재요청
 function requestGmailPermission() {
     console.log('🔑 Gmail 권한 재요청...');
-    requestGmailLogin(); // 같은 로직 사용
+    if (typeof requestGmailLogin === 'function') {
+        requestGmailLogin(true); // 강제 모드로 실행
+    } else {
+        console.error('❌ requestGmailLogin 함수를 찾을 수 없습니다.');
+        showForwardingResult('danger', 'Gmail 로그인 함수를 찾을 수 없습니다. 페이지를 새로고침해주세요.');
+    }
 }
 
 // Gmail 인증 응답 처리 (포워딩용)
@@ -832,7 +992,11 @@ async function testGmailConnection() {
     console.log('🧪 Gmail 연결 테스트 시작...');
     
     try {
-        showForwardingProgress('Gmail 연결을 테스트하고 있습니다...');
+        // 기존 애니메이션 정리
+    hideForwardingProgress();
+    $('#forwarding-result').remove();
+    
+    showForwardingProgress('Gmail 연결을 테스트하고 있습니다...');
         
         // 1. GAPI 로드 확인
         if (typeof gapi === 'undefined') {
@@ -1597,7 +1761,8 @@ function handleGoogleLogin() {
     try {
         // Google Identity Services 초기화
         google.accounts.id.initialize({
-            client_id: '96805366744-nb6s5bh1089o5vh3020in2kv3atq92ug.apps.googleusercontent.com',
+            // client_id: '96805366744-nb6s5bh1089o5vh3020in2kv3atq92ug.apps.googleusercontent.com',
+            client_id: '',
             callback: handleGoogleSignIn,
             auto_select: false,
             cancel_on_tap_outside: false
@@ -1630,7 +1795,8 @@ function initiateGoogleOAuth() {
     }
     
     const tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: '96805366744-nb6s5bh1089o5vh3020in2kv3atq92ug.apps.googleusercontent.com',
+        // client_id: '96805366744-nb6s5bh1089o5vh3020in2kv3atq92ug.apps.googleusercontent.com',
+        client_id: '',
         scope: 'openid email profile',
         callback: handleGoogleOAuthResponse,
     });
@@ -1690,6 +1856,7 @@ function handleGoogleOAuthResponse(response) {
         } else if (response.error === 'redirect_uri_mismatch') {
             errorMessage = 'redirect_uri_mismatch: Google Cloud Console에서 Authorized URIs 설정을 확인해주세요.\n\n' +
                           '다음 URI들을 추가해야 합니다:\n' +
+                          '• https://doclick.netlify.app\n' +
                           '• http://localhost:8000\n' +
                           '• http://127.0.0.1:8000\n' +
                           '• http://localhost:3000';
@@ -1829,7 +1996,148 @@ function help() {
     console.log('- checkStoredUserInfo(): 저장된 정보 확인');
     console.log('- checkAdminEmail(): 행정실 이메일 상세 확인');
     console.log('- testGmailSearch(): Gmail 검색 테스트');
+    console.log('- checkGoogleAPIStatus(): Google API 상태 확인');
+    console.log('- reinitializeGoogleAPIs(): Google API 재초기화');
+    console.log('- diagnoseGmailAPI(): Gmail API 상세 진단');
     console.log('- help(): 이 도움말 표시');
+}
+
+// Google API 상태 확인 함수
+function checkGoogleAPIStatus() {
+    console.log('=== Google API 상태 체크 ===');
+    console.log('🔍 Google 스크립트 로드됨:', typeof google !== 'undefined');
+    console.log('🔍 GAPI 로드됨:', typeof gapi !== 'undefined');
+    console.log('🔍 GAPI 초기화됨:', typeof gapi !== 'undefined' && !!gapi.client);
+    console.log('🔍 Gmail API 클라이언트:', typeof gapi !== 'undefined' && !!gapi.client?.gmail);
+    
+    if (typeof gmailAuth !== 'undefined') {
+        console.log('🔍 Gmail 인증 상태:', gmailAuth);
+    } else {
+        console.log('❌ gmailAuth 객체가 정의되지 않았습니다');
+    }
+    
+    if (typeof gapi !== 'undefined' && gapi.client) {
+        console.log('🔍 GAPI 클라이언트 상태:', gapi.client);
+        console.log('🔍 현재 토큰:', gapi.client.getToken?.() || '토큰 없음');
+    }
+    
+    // Gmail API 테스트
+    if (typeof gapi !== 'undefined' && gapi.client && gapi.client.gmail) {
+        console.log('✅ Gmail API 테스트 가능');
+        testGmailAPIConnection();
+    } else {
+        console.log('❌ Gmail API 사용 불가능');
+    }
+}
+
+// Gmail API 연결 테스트
+async function testGmailAPIConnection() {
+    try {
+        console.log('🧪 Gmail API 연결 테스트 중...');
+        
+        // 토큰이 있는지 확인
+        const token = gapi.client.getToken();
+        if (!token) {
+            console.log('❌ 인증 토큰이 없습니다. 먼저 Gmail 로그인이 필요합니다.');
+            return;
+        }
+        
+        // 간단한 프로필 정보 가져오기 테스트
+        const response = await gapi.client.gmail.users.getProfile({
+            userId: 'me'
+        });
+        
+        console.log('✅ Gmail API 연결 성공!');
+        console.log('📧 사용자 이메일:', response.result.emailAddress);
+        console.log('📊 총 메시지 수:', response.result.messagesTotal);
+        
+    } catch (error) {
+        console.error('❌ Gmail API 연결 실패:', error);
+        if (error.status === 401) {
+            console.log('🔑 인증 토큰이 만료되었습니다. 재로그인이 필요합니다.');
+        }
+    }
+}
+
+// Google API 재초기화 함수
+function reinitializeGoogleAPIs() {
+    console.log('🔄 Google API 재초기화 시작...');
+    
+    // Gmail 인증 상태 초기화
+    if (typeof gmailAuth !== 'undefined') {
+        gmailAuth.isGapiLoaded = false;
+        gmailAuth.isGisLoaded = false;
+        gmailAuth.isAuthorized = false;
+    }
+    
+    // 재초기화 시도
+    setTimeout(function() {
+        console.log('🔄 Gmail API 재초기화 중...');
+        if (typeof initializeGapi === 'function') {
+            initializeGapi();
+            console.log('✅ initializeGapi() 호출됨');
+        } else {
+            console.error('❌ initializeGapi 함수를 찾을 수 없습니다');
+        }
+        
+        if (typeof initializeGis === 'function') {
+            initializeGis();
+            console.log('✅ initializeGis() 호출됨');
+        } else {
+            console.error('❌ initializeGis 함수를 찾을 수 없습니다');
+        }
+    }, 1000);
+}
+
+// Gmail API 상세 진단 함수
+function diagnoseGmailAPI() {
+    console.log('🩺 Gmail API 상세 진단 시작...');
+    console.log('='.repeat(50));
+    
+    // 1. 스크립트 로드 상태
+    console.log('📋 스크립트 로드 상태:');
+    console.log('  - Google 전역 객체:', typeof google !== 'undefined');
+    console.log('  - GAPI 전역 객체:', typeof gapi !== 'undefined');
+    console.log('  - Gmail API 클라이언트:', typeof gapi !== 'undefined' && !!gapi.client?.gmail);
+    
+    // 2. 설정 값 확인
+    console.log('📋 설정 값:');
+    if (typeof GOOGLE_CONFIG !== 'undefined') {
+        console.log('  - Client ID:', GOOGLE_CONFIG.CLIENT_ID);
+        console.log('  - API Key:', GOOGLE_CONFIG.API_KEY.substring(0, 10) + '...');
+        console.log('  - Scopes:', GOOGLE_CONFIG.SCOPES);
+    } else {
+        console.error('  ❌ GOOGLE_CONFIG가 정의되지 않았습니다');
+    }
+    
+    // 3. Gmail 인증 상태
+    console.log('📋 Gmail 인증 상태:');
+    if (typeof gmailAuth !== 'undefined') {
+        console.log('  - GAPI 로드됨:', gmailAuth.isGapiLoaded);
+        console.log('  - GIS 로드됨:', gmailAuth.isGisLoaded);
+        console.log('  - 인증됨:', gmailAuth.isAuthorized);
+        console.log('  - 토큰 클라이언트:', !!gmailAuth.tokenClient);
+    } else {
+        console.error('  ❌ gmailAuth가 정의되지 않았습니다');
+    }
+    
+    // 4. 저장된 토큰 확인
+    console.log('📋 저장된 토큰:');
+    const savedToken = localStorage.getItem('gmail_access_token');
+    console.log('  - 토큰 존재:', !!savedToken);
+    if (savedToken) {
+        console.log('  - 토큰 길이:', savedToken.length);
+    }
+    
+    // 5. API 테스트
+    if (typeof gapi !== 'undefined' && gapi.client && gapi.client.gmail) {
+        console.log('📋 API 테스트 실행 중...');
+        testGmailAPIConnection();
+    } else {
+        console.error('  ❌ Gmail API 클라이언트 사용 불가');
+    }
+    
+    console.log('='.repeat(50));
 }
 
 // 행정실 이메일 상세 확인 (디버깅용)
@@ -2120,72 +2428,6 @@ function startAdminEmailSearch(adminEmail) {
     startAdminEmailSearchFromStart(adminEmail);
 }
 
-// 시작하기 버튼에서 호출되는 Gmail 검색
-async function searchAdminEmailsFromStart(adminEmail) {
-    try {
-        console.log('🔍 시작하기 버튼에서 Gmail 검색 중:', adminEmail);
-        console.log('📧 검색 쿼리:', `from:${adminEmail}`);
-        
-        // 사용자에게 진행 상황 업데이트
-        updateGmailSearchProgress('Gmail 계정에서 행정실 이메일을 검색하고 있습니다...');
-        
-        // Gmail API로 검색 (최근 50개 이메일)
-        const response = await gapi.client.gmail.users.messages.list({
-            userId: 'me',
-            q: `from:${adminEmail}`,
-            maxResults: 50
-        });
-        
-        const messages = response.result.messages || [];
-        console.log(`📧 발견된 이메일 수: ${messages.length}개`);
-        
-        if (messages.length === 0) {
-            // 다른 검색 방법도 시도
-            console.log('🔄 다른 검색 조건으로 재시도...');
-            updateGmailSearchProgress('다른 검색 조건으로 재시도 중...');
-            
-            // 이메일 도메인으로도 검색
-            const domain = adminEmail.split('@')[1];
-            const domainResponse = await gapi.client.gmail.users.messages.list({
-                userId: 'me',
-                q: `from:@${domain}`,
-                maxResults: 30
-            });
-            
-            const domainMessages = domainResponse.result.messages || [];
-            console.log(`📧 도메인 검색으로 발견된 이메일 수: ${domainMessages.length}개`);
-            
-            if (domainMessages.length === 0) {
-                window.clearGmailSearchTimeout();
-                hideGmailSearchLoading();
-                skipGmailSearchWithMessage(`해당 행정실(${adminEmail})에서 온 이메일이 없습니다. 수동으로 업무를 추가해주세요.`);
-                return;
-            } else {
-                // 도메인 검색 결과 사용
-                processFoundEmailsFromStart(domainMessages.slice(0, 10), adminEmail);
-                return;
-            }
-        }
-        
-        // 발견된 이메일 처리
-        processFoundEmailsFromStart(messages.slice(0, 20), adminEmail); // 최대 20개 처리
-        
-    } catch (error) {
-        console.error('❌ Gmail 검색 실패:', error);
-        window.clearGmailSearchTimeout();
-        hideGmailSearchLoading();
-        
-        // 빠르게 넘어가기 - 긴 오류 메시지 대신 간단한 안내
-        skipGmailSearchWithMessage('Gmail 검색 중 오류가 발생했습니다. 수동으로 업무를 추가해주세요.');
-    }
-}
-
-// Gmail에서 행정실 이메일 검색 (기존 호환성)
-async function searchAdminEmails(adminEmail) {
-    console.log('🔍 Gmail 검색 (기존 호환성):', adminEmail);
-    return searchAdminEmailsFromStart(adminEmail);
-}
-
 // 시작하기 버튼에서 발견된 이메일들 처리
 async function processFoundEmailsFromStart(messages, adminEmail) {
     updateGmailSearchProgress(`${messages.length}개의 이메일을 분석하고 있습니다...`);
@@ -2380,7 +2622,8 @@ function replaceChecklistWithEmails(emails) {
     // 업무 요약 업데이트
     updateTaskSummary();
     
-    console.log(`✅ ${emails.length}개의 업무가 체크리스트에 추가되었습니다.`);
+    // 성공 알림
+    showGmailSearchResult(`${emails.length}개의 행정실 업무가 체크리스트에 추가되었습니다!`);
     
     // 체크리스트 섹션으로 스크롤 (2초 후)
     setTimeout(() => {
@@ -2958,4 +3201,1022 @@ function skipGmailSearchManually() {
     // 건너뛰기 메시지 표시
     skipGmailSearchWithMessage('Gmail 검색을 건너뛰었습니다. 수동으로 업무를 추가해주세요.');
 }
+
+// 인라인 로그인 상태 확인 (팝업 없는 안전 모드)
+function checkInlineLoginStatus() {
+    console.log('🔍 인라인 로그인 상태 확인 시작 (팝업 방지 모드)');
+    
+    try {
+        // 개발 모드에서는 항상 사용자 정보 입력 화면 표시
+        if (DEVELOPMENT_MODE) {
+            console.log('🔧 개발 모드: 사용자 정보 입력 화면 강제 표시');
+            showUserInfoSection();
+            return;
+        }
+        
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        const userInfo = localStorage.getItem('userInfo');
+        
+        console.log('📊 저장된 상태:', { 
+            isLoggedIn: !!isLoggedIn, 
+            hasUserInfo: !!userInfo 
+        });
+        
+        if (isLoggedIn === 'true' && userInfo) {
+            // 기존 사용자 - 메인 콘텐츠 바로 표시
+            console.log('✅ 기존 사용자 감지 - 메인 콘텐츠 표시');
+            try {
+                const userData = JSON.parse(userInfo);
+                console.log('👤 사용자 정보:', userData.name || '이름 없음');
+            } catch (e) {
+                console.warn('사용자 정보 파싱 오류:', e);
+            }
+            showMainContent();
+        } else {
+            // 새 사용자 - 인라인 정보 입력 표시
+            console.log('📝 새 사용자 - 인라인 정보 입력 모드');
+            showUserInfoSection();
+        }
+        
+    } catch (error) {
+        console.error('❌ 로그인 상태 확인 중 오류:', error);
+        // 오류 시 안전하게 정보 입력 섹션 표시
+        showUserInfoSection();
+    }
+}
+
+// 사용자 정보 섹션 표시 (안전 모드)
+function showUserInfoSection() {
+    try {
+        console.log('📋 사용자 정보 입력 섹션 표시');
+        
+        // jQuery 방식 시도
+        if (typeof $ !== 'undefined') {
+            $('#user-info-section').show().css('display', 'flex');
+            $('#main-content').hide();
+            $('#tm-header').hide();
+            
+            // 포커스 설정
+            setTimeout(() => {
+                const nameInput = $('#inline-name-input');
+                if (nameInput.length > 0) {
+                    nameInput.focus();
+                    console.log('✏️ 입력 필드 포커스 설정 완료');
+                }
+            }, 300);
+        } else {
+            // 순수 JavaScript 백업
+            const userSection = document.getElementById('user-info-section');
+            const mainContent = document.getElementById('main-content');
+            const header = document.getElementById('tm-header');
+            
+            if (userSection) userSection.style.display = 'flex';
+            if (mainContent) mainContent.style.display = 'none';
+            if (header) header.style.display = 'none';
+            
+            // 포커스 설정
+            setTimeout(() => {
+                const nameInput = document.getElementById('inline-name-input');
+                if (nameInput) nameInput.focus();
+            }, 300);
+        }
+        
+    } catch (error) {
+        console.error('❌ 사용자 정보 섹션 표시 중 오류:', error);
+    }
+}
+
+// 방문자 추적 함수
+function trackVisitor() {
+    // 모든 field가 들어 있는 데이터 생성
+    var data = JSON.stringify({
+        "id": getUVfromCookie(),
+        "landingUrl": window.location.href,
+        "ip": ip, // 전역 변수 ip 사용
+        "referer": document.referrer || 'Direct',
+        "time_stamp": getTimeStamp(),
+        "utm": getUTMParams(),
+        "device": getDeviceType()
+    });
+
+    console.log('방문자 데이터:', data);
+
+    // Google Apps Script로 데이터 전송
+    axios.get('https://script.google.com/macros/s/AKfycbzizOOhpr__UIANizUSF1ErlPJnXpM3EWyxOO2WRBjfD2JpzNrWAkK8IyZwz6f_nBcX/exec?action=insert&table=visitors&data=' + data)
+        .then(response => {
+            console.log('방문자 추적 성공:', response.data);
+        })
+        .catch(error => {
+            console.error('방문자 추적 실패:', error);
+        });
+}
+
+// 고유 ID 생성 함수
+function generateUniqueId() {
+    return Date.now().toString() + Math.floor(Math.random() * 1000).toString();
+}
+
+// 페이지 로드 시 로그인 상태 확인 추가 (비활성화됨)
+// 인라인 방식으로 대체되어 모든 팝업 관련 기능 비활성화됨
+
+// Google API 로드 (안전 모드)
+function loadGoogleAPIs() {
+    console.log('Google API 로드 건너뜀 (안전 모드)');
+    return;
+}
+
+// 설정 버튼 추가 (안전 모드)
+function addSettingsButton() {
+    console.log('설정 버튼 추가 건너뜀 (안전 모드)');
+    return;
+}
+
+// 알림 권한 요청 (완전 비활성화)
+function requestNotificationPermission() {
+    console.log('❌ 알림 권한 요청 완전 비활성화 (팝업 방지)');
+    // 절대로 Notification.requestPermission() 호출하지 않음
+    return Promise.resolve('default');
+}
+
+// 알림 스케줄 설정 (완전 비활성화)
+function setupNotificationSchedule() {
+    console.log('❌ 알림 스케줄 설정 완전 비활성화 (팝업 방지)');
+    return;
+}
+
+// 브라우저 알림 관련 모든 함수 비활성화
+function showNotification() {
+    console.log('❌ 브라우저 알림 비활성화');
+    return;
+}
+
+function scheduleNotification() {
+    console.log('❌ 알림 스케줄링 비활성화');
+    return;
+}
+
+// 안전한 함수 호출을 위한 헬퍼
+function safeCall(funcName, ...args) {
+    try {
+        if (typeof window[funcName] === 'function') {
+            return window[funcName](...args);
+        } else {
+            console.log(`함수 ${funcName}는 사용할 수 없습니다 (안전 모드).`);
+            return null;
+        }
+    } catch (error) {
+        console.error(`함수 ${funcName} 호출 중 오류:`, error);
+        return null;
+    }
+}
+
+// 시작하기 버튼에서 호출되는 행정실 이메일 검색
+function startAdminEmailSearchFromStart(adminEmail) {
+    console.log('🚀 시작하기 버튼에서 행정실 이메일 검색 시작:', adminEmail);
+    
+    // 즉시 로딩 오버레이 표시
+    showGmailSearchLoading();
+    
+    // 10초 타임아웃 설정
+    const searchTimeout = setTimeout(() => {
+        console.log('⏰ Gmail 검색 타임아웃 (10초 초과)');
+        hideGmailSearchLoading();
+        skipGmailSearchWithMessage('Gmail 검색이 너무 오래 걸려서 건너뜁니다. 수동으로 업무를 추가해주세요.');
+    }, 10000); // 10초 타임아웃
+    
+    // 검색 성공/실패 시 타임아웃 클리어하는 함수
+    window.clearGmailSearchTimeout = () => {
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+            console.log('⏰ Gmail 검색 타임아웃 클리어됨');
+        }
+    };
+    
+    // 강제로 3초간 로딩 화면 표시 (사용자가 볼 수 있도록)
+    setTimeout(() => {
+        console.log('🔍 Gmail API 상태 확인 중...');
+        console.log('gapi 존재:', typeof gapi !== 'undefined');
+        console.log('gapi.client 존재:', typeof gapi !== 'undefined' && !!gapi.client);
+        console.log('gmail API 존재:', typeof gapi !== 'undefined' && !!gapi.client && !!gapi.client.gmail);
+        
+        // Gmail API가 준비되어 있는지 확인
+        if (typeof gapi === 'undefined' || !gapi.client) {
+            console.warn('⚠️ Gmail API가 준비되지 않았습니다. 초기화 시도...');
+            
+            // Gmail API 초기화 재시도
+            if (typeof initializeGapi === 'function') {
+                console.log('📧 Gmail API 재초기화 시도...');
+                initializeGapi().then(() => {
+                    console.log('✅ Gmail API 재초기화 성공');
+                    setTimeout(() => searchAdminEmailsFromStart(adminEmail), 1000);
+                }).catch(error => {
+                    console.error('❌ Gmail API 재초기화 실패:', error);
+                    window.clearGmailSearchTimeout();
+                    hideGmailSearchLoading();
+                    skipGmailSearchWithMessage('Gmail API 초기화에 실패했습니다. 수동으로 업무를 추가해주세요.');
+                });
+            } else {
+                console.error('❌ Gmail API 초기화 함수를 찾을 수 없습니다.');
+                console.log('🧪 데모 모드로 전환...');
+                
+                // 데모 모드 - 샘플 이메일 데이터 생성
+                updateGmailSearchProgress('데모 모드: 샘플 업무를 생성하고 있습니다...');
+                setTimeout(() => {
+                    const demoEmails = generateDemoEmailsForStart(adminEmail);
+                    updateGmailSearchProgress('체크리스트에 업무를 추가하고 있습니다...');
+                    setTimeout(() => {
+                        window.clearGmailSearchTimeout();
+                        hideGmailSearchLoading();
+                        replaceChecklistWithEmails(demoEmails);
+                        showGmailSearchResult('데모 모드: 행정실에서 발견된 업무가 체크리스트에 추가되었습니다. 실제 Gmail 연동을 위해서는 Google 로그인이 필요합니다.');
+                    }, 1000);
+                }, 2000);
+            }
+            return;
+        }
+        
+        // Gmail API가 준비되어 있으면 바로 검색
+        searchAdminEmailsFromStart(adminEmail);
+    }, 3000); // 3초 지연으로 로딩 화면이 확실히 보이도록
+}
+
+// 행정실 이메일 검색 시작 (기존 호환성)
+function startAdminEmailSearch(adminEmail) {
+    console.log('🏃‍♂️ 행정실 이메일 검색 시작 (기존):', adminEmail);
+    startAdminEmailSearchFromStart(adminEmail);
+}
+
+// 시작하기 버튼에서 발견된 이메일들 처리
+async function processFoundEmailsFromStart(messages, adminEmail) {
+    updateGmailSearchProgress(`${messages.length}개의 이메일을 분석하고 있습니다...`);
+    
+    const emailDetails = [];
+    for (let i = 0; i < messages.length; i++) {
+        try {
+            updateGmailSearchProgress(`이메일 ${i + 1}/${messages.length} 처리 중...`);
+            
+            const messageResponse = await gapi.client.gmail.users.messages.get({
+                userId: 'me',
+                id: messages[i].id
+            });
+            
+            const messageData = messageResponse.result;
+            const headers = messageData.payload.headers;
+            
+            // 이메일 정보 추출
+            const subject = headers.find(h => h.name === 'Subject')?.value || '제목 없음';
+            const date = headers.find(h => h.name === 'Date')?.value || '';
+            const from = headers.find(h => h.name === 'From')?.value || adminEmail;
+            
+            // 발신자 이름 추출
+            const senderName = extractSenderName(from);
+            
+            // 본문 추출 (간단한 버전)
+            let body = '';
+            try {
+                if (messageData.payload.body && messageData.payload.body.data) {
+                    body = atob(messageData.payload.body.data.replace(/-/g, '+').replace(/_/g, '/'));
+                } else if (messageData.payload.parts) {
+                    const textPart = messageData.payload.parts.find(part => part.mimeType === 'text/plain');
+                    if (textPart && textPart.body && textPart.body.data) {
+                        body = atob(textPart.body.data.replace(/-/g, '+').replace(/_/g, '/'));
+                    }
+                }
+            } catch (decodeError) {
+                console.warn('본문 디코딩 실패:', decodeError);
+                body = '본문을 읽을 수 없습니다.';
+            }
+            
+            emailDetails.push({
+                id: messageData.id,
+                subject: subject,
+                date: new Date(date),
+                from: from,
+                senderName: senderName,
+                body: body.substring(0, 200) + (body.length > 200 ? '...' : '') // 본문 미리보기
+            });
+            
+            console.log(`📧 처리 완료 ${i + 1}/${messages.length}: ${subject}`);
+            
+        } catch (error) {
+            console.error(`메시지 ${i + 1} 상세 정보 가져오기 실패:`, error);
+            continue; // 오류가 있어도 계속 진행
+        }
+    }
+    
+    console.log('📨 이메일 상세 정보 수집 완료:', emailDetails);
+    updateGmailSearchProgress('체크리스트에 업무를 추가하고 있습니다...');
+    
+    // 1초 지연 후 결과 표시 (사용자가 진행 상황을 볼 수 있도록)
+    setTimeout(() => {
+        window.clearGmailSearchTimeout();
+        hideGmailSearchLoading();
+        replaceChecklistWithEmails(emailDetails);
+        showGmailSearchResult(`${emailDetails.length}개의 행정실 업무가 체크리스트에 추가되었습니다!`);
+    }, 1000);
+}
+
+// 발견된 이메일들 처리 (기존 호환성)
+async function processFoundEmails(messages, adminEmail) {
+    console.log('📧 이메일 처리 (기존 호환성):', messages.length);
+    return processFoundEmailsFromStart(messages, adminEmail);
+}
+
+// Gmail 검색 진행 상황 업데이트
+function updateGmailSearchProgress(message) {
+    const progressElement = $('#gmail-search-loading .gmail-search-content p');
+    if (progressElement.length > 0) {
+        progressElement.text(message);
+        console.log('🔄 진행 상황:', message);
+    }
+}
+
+// 발신자 이름 추출
+function extractSenderName(fromEmail) {
+    try {
+        // "이름 <email@domain.com>" 형식에서 이름 추출
+        const nameMatch = fromEmail.match(/^(.+?)\s*<.*>$/);
+        if (nameMatch) {
+            return nameMatch[1].trim().replace(/['"]/g, ''); // 따옴표 제거
+        }
+        
+        // 이메일만 있는 경우 @ 앞부분 사용
+        const emailMatch = fromEmail.match(/([^@]+)@/);
+        if (emailMatch) {
+            return emailMatch[1];
+        }
+        
+        return '행정실';
+    } catch (error) {
+        console.warn('발신자 이름 추출 실패:', error);
+        return '행정실';
+    }
+}
+
+// 체크리스트를 이메일 데이터로 교체
+function replaceChecklistWithEmails(emails) {
+    console.log('📋 체크리스트를 이메일 데이터로 교체:', emails);
+    
+    if (emails.length === 0) {
+        showGmailSearchResult('검색된 이메일이 없습니다.');
+        return;
+    }
+    
+    // 기존 체크리스트 테이블 body 찾기
+    const checklistBody = $('#checklist-body');
+    if (checklistBody.length === 0) {
+        console.error('체크리스트 테이블을 찾을 수 없습니다.');
+        return;
+    }
+    
+    // 기존 내용을 모두 지우고 새로운 데이터로 교체
+    checklistBody.empty();
+    
+    emails.forEach((email, index) => {
+        // 접수일 포맷 (이메일 받은 날짜)
+        const receiptDate = email.date.toLocaleDateString('ko-KR', {
+            year: '2-digit',
+            month: '2-digit',  
+            day: '2-digit'
+        }).replace(/\./g, '-').replace(/ /g, '');
+        
+        // 마감일 계산 (이메일 받은 날짜 + 7일)
+        const deadlineDate = new Date(email.date);
+        deadlineDate.setDate(deadlineDate.getDate() + 7);
+        const deadlineStr = deadlineDate.toLocaleDateString('ko-KR', {
+            year: '2-digit',
+            month: '2-digit',
+            day: '2-digit'
+        }).replace(/\./g, '-').replace(/ /g, '');
+        
+        // 오늘 받은 이메일인지 확인
+        const isToday = isEmailFromToday(email.date);
+        const receiptDateClass = isToday ? 'receipt-date-today' : '';
+        
+        // 이메일 제목에서 업무 내용 추출
+        const taskContent = extractTaskFromSubject(email.subject);
+        const isImportant = isImportantTask(email.subject);
+        const taskClass = isImportant ? 'task-content task-important' : 'task-content';
+        
+        // 마감일까지 남은 일수 계산
+        const daysRemaining = getDaysRemainingFromDate(email.date);
+        
+        const newRow = `
+            <tr class="gmail-imported-task ${isToday ? 'new-task-highlight' : ''}" data-email-id="${email.id}">
+                <td><img src="img/checkbox-unchecked.png" alt="체크박스" class="checkbox-img" data-status="unchecked" style="width: 25px; height: 25px; cursor: pointer;"></td>
+                <td class="${taskClass}" title="${email.subject}">${taskContent}</td>
+                <td class="deadline-date" data-deadline="${deadlineStr}">${daysRemaining}</td>
+                <td class="receipt-date ${receiptDateClass}" data-receipt="${receiptDate}">${receiptDate}</td>
+                <td>${email.senderName || '행정실'}</td>
+                <td>-</td>
+            </tr>
+        `;
+        
+        checklistBody.append(newRow);
+    });
+    
+    // 체크박스 이벤트 다시 바인딩
+    $('.checkbox-img').off('click').on('click', function() {
+        toggleCheckbox(this);
+    });
+    
+    // 행 클릭 이벤트 다시 바인딩
+    $('tbody tr').off('click').on('click', function() {
+        const checkbox = $(this).find('.checkbox-img');
+        const status = checkbox.data('status');
+        const deadline = $(this).find('.deadline-date').data('deadline');
+        const receiptDate = $(this).find('.receipt-date').data('receipt');
+        const taskContent = $(this).find('.task-content').text();
+        const assignee = $(this).find('td:eq(4)').text();
+        const forwarding = $(this).find('td:eq(5)').text();
+        
+        showWorkspaceContent(taskContent, status, deadline, receiptDate, assignee, forwarding);
+        
+        $('html, body').animate({
+            scrollTop: $('#section-workspace').offset().top
+        }, 800);
+    });
+    
+    // 업무 요약 업데이트
+    updateTaskSummary();
+    
+    console.log(`✅ ${emails.length}개의 업무가 체크리스트에 추가되었습니다.`);
+    
+    // 체크리스트 섹션으로 스크롤 (2초 후)
+    setTimeout(() => {
+        $('html, body').animate({
+            scrollTop: $('#section-checklist').offset().top
+        }, 1000);
+    }, 2000);
+}
+
+// 이메일 날짜로부터 마감일까지 남은 일수 계산
+function getDaysRemainingFromDate(emailDate) {
+    const deadline = new Date(emailDate);
+    deadline.setDate(deadline.getDate() + 7); // 이메일 받은 날짜 + 7일
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    deadline.setHours(0, 0, 0, 0);
+    
+    const diffTime = deadline - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) {
+        return `<span class="text-danger">${Math.abs(diffDays)}일 지남</span>`;
+    } else if (diffDays === 0) {
+        return '<span class="text-warning">오늘 마감</span>';
+    } else if (diffDays <= 3) {
+        return `<span class="text-warning">${diffDays}일 남음</span>`;
+    } else {
+        return `<span class="text-success">${diffDays}일 남음</span>`;
+    }
+}
+
+// 시작하기용 데모 이메일 생성
+function generateDemoEmailsForStart(adminEmail) {
+    const sampleSubjects = [
+        '졸업논문 심사 신청서 제출 안내',
+        '학위수여식 참석 확인서 제출 요청', 
+        '연구윤리교육 이수 확인서 제출',
+        '학적 변동 신청서 제출 안내',
+        '장학금 신청 마감 공지',
+        '세미나 참석 확인서 제출',
+        '연구실 안전교육 이수증 제출 요청',
+        '대학원 등록금 납부 안내',
+        '연구과제 중간보고서 제출',
+        '학회 발표 신청서 제출 요청'
+    ];
+    
+    const senderNames = ['김행정', '이서무', '박학적', '최교무', '정연구', '한학과', '조서기'];
+    
+    const demoEmails = [];
+    const today = new Date();
+    
+    sampleSubjects.forEach((subject, index) => {
+        const emailDate = new Date(today);
+        emailDate.setDate(today.getDate() - (index + 1)); // 1일부터 10일 전까지 분산
+        
+        const senderName = senderNames[index % senderNames.length];
+        
+        demoEmails.push({
+            id: `demo_start_${index}`,
+            subject: subject,
+            date: emailDate,
+            from: `${senderName} <${adminEmail}>`,
+            senderName: senderName,
+            body: `${subject}에 관한 상세 안내사항입니다. 마감일까지 제출해주시기 바랍니다.`
+        });
+    });
+    
+    console.log('🧪 시작하기용 데모 이메일 생성 완료:', demoEmails);
+    return demoEmails;
+}
+
+// 행정실 이메일이 없을 때 메시지 표시
+function showNoAdminEmailMessage() {
+    const messageDiv = `
+        <div class="alert alert-warning admin-email-notice" style="position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 350px;">
+            <button type="button" class="close" onclick="$(this).parent().remove();">
+                <span>&times;</span>
+            </button>
+            <strong>행정실 이메일 미설정</strong><br>
+            행정실 이메일이 설정되지 않아 Gmail 검색을 건너뜁니다. 설정에서 행정실 이메일을 추가해주세요.
+        </div>
+    `;
+    $('body').append(messageDiv);
+    
+    // 7초 후 자동 제거
+    setTimeout(() => {
+        $('.admin-email-notice').fadeOut(function() {
+            $(this).remove();
+        });
+    }, 7000);
+}
+
+// Gmail 검색을 건너뛰고 메인 화면으로 이동
+function skipGmailSearchWithMessage(message) {
+    console.log('⏭️ Gmail 검색 건너뛰기:', message);
+    
+    // 간단한 알림 메시지 표시
+    const messageDiv = `
+        <div class="alert alert-info gmail-skip-notice" style="position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 350px;">
+            <button type="button" class="close" onclick="$(this).parent().remove();">
+                <span>&times;</span>
+            </button>
+            <strong>Gmail 검색 건너뛰기</strong><br>
+            ${message}
+        </div>
+    `;
+    $('body').append(messageDiv);
+    
+    // 5초 후 자동 제거
+    setTimeout(() => {
+        $('.gmail-skip-notice').fadeOut(function() {
+            $(this).remove();
+        });
+    }, 5000);
+    
+    // 체크리스트 섹션으로 스크롤 (기존 샘플 데이터 유지)
+    setTimeout(() => {
+        $('html, body').animate({
+            scrollTop: $('#section-checklist').offset().top
+        }, 1000);
+    }, 1000);
+}
+
+// 수동으로 Gmail 검색 건너뛰기
+function skipGmailSearchManually() {
+    console.log('👆 사용자가 수동으로 Gmail 검색 건너뛰기');
+    
+    // 타임아웃 클리어
+    if (typeof window.clearGmailSearchTimeout === 'function') {
+        window.clearGmailSearchTimeout();
+    }
+    
+    // 로딩 화면 숨기기
+    hideGmailSearchLoading();
+    
+    // 건너뛰기 메시지 표시
+    skipGmailSearchWithMessage('Gmail 검색을 건너뛰었습니다. 수동으로 업무를 추가해주세요.');
+}
+
+// Gmail에서 행정실 이메일 검색 (최근 6개월간)
+async function searchAdminEmailsFromStart(adminEmail) {
+    console.log('🔍 Gmail에서 행정실 이메일 검색 시작:', adminEmail);
+    
+    try {
+        updateGmailSearchProgress('Gmail에서 이메일을 검색하고 있습니다...');
+        
+        // 최근 6개월간의 날짜 범위 계산
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+        const fromDate = sixMonthsAgo.toISOString().split('T')[0].replace(/-/g, '/');
+        
+        // Gmail 검색 쿼리 구성
+        // 행정실 이메일로부터 온 메일 + 최근 6개월간 + 읽지 않은 것 우선
+        const searchQuery = `from:${adminEmail} after:${fromDate}`;
+        
+        console.log('📧 Gmail 검색 쿼리:', searchQuery);
+        updateGmailSearchProgress('이메일 목록을 가져오는 중...');
+        
+        // Gmail API로 이메일 검색
+        const response = await gapi.client.gmail.users.messages.list({
+            userId: 'me',
+            q: searchQuery,
+            maxResults: 50 // 최대 50개까지
+        });
+        
+        console.log('📧 Gmail 검색 응답:', response);
+        
+        if (!response.result.messages || response.result.messages.length === 0) {
+            console.log('📭 검색된 이메일이 없습니다.');
+            
+            // 샘플 업무 생성 (Gmail 이메일이 없어도 항상 표시)
+            updateGmailSearchProgress('샘플 업무들을 로드하고 있습니다...');
+            setTimeout(() => {
+                hideGmailSearchLoading();
+                const sampleEmails = generateEnhancedDemoEmails(adminEmail);
+                displayEmailsInChecklist(sampleEmails);
+                showGmailSearchResult(`Gmail 이메일이 없어 샘플 업무 ${sampleEmails.length}개를 로드했습니다. (처리 프로세스 정보 포함)`);
+            }, 1000);
+            return;
+        }
+        
+        const messages = response.result.messages;
+        console.log(`📬 ${messages.length}개의 이메일을 발견했습니다.`);
+        
+        // 발견된 이메일들을 상세 분석
+        await processFoundEmailsFromStart(messages, adminEmail);
+        
+        // Gmail 이메일과 관계없이 샘플 업무들도 함께 표시 (처리 프로세스 정보 포함)
+        const sampleEmails = generateEnhancedDemoEmails(adminEmail);
+        setTimeout(() => {
+            displayEmailsInChecklist(sampleEmails);
+            showGmailSearchResult(`Gmail에서 ${messages.length}개 이메일과 샘플 업무 ${sampleEmails.length}개를 함께 로드했습니다.`);
+        }, 1500);
+        
+    } catch (error) {
+        console.error('❌ Gmail 이메일 검색 실패:', error);
+        
+        // 오류 발생 시 데모 데이터로 폴백
+        updateGmailSearchProgress('Gmail 검색 중 오류가 발생했습니다. 데모 데이터를 생성합니다...');
+        setTimeout(() => {
+            hideGmailSearchLoading();
+            generateDemoEmailsForStart(adminEmail);
+            showGmailSearchError(`Gmail 검색 실패: ${error.message}`);
+        }, 1000);
+    }
+}
+
+// 업무별 처리 프로세스 정보 생성
+function generateTaskProcessInfo() {
+    return [
+        {
+            taskType: '졸업논문 심사 신청서',
+            steps: ['논문 완성도 확인', '지도교수 승인 받기', '심사위원 섭외', '심사 신청서 작성', '행정실 제출'],
+            requirements: ['논문 초안', '지도교수 서명', '심사위원 동의서'],
+            deadline: '7일',
+            tips: '논문 완성도가 80% 이상일 때 신청하세요.',
+            category: '학위'
+        },
+        {
+            taskType: '학위수여식 참석 확인서',
+            steps: ['졸업 자격 확인', '참석 의사 결정', '확인서 작성', '행정실 제출'],
+            requirements: ['졸업 예정 증명서', '학위 수여 대상자 확인'],
+            deadline: '14일',
+            tips: '졸업식 2주 전까지 제출하셔야 합니다.',
+            category: '졸업'
+        },
+        {
+            taskType: '연구윤리교육 이수 확인서',
+            steps: ['교육 플랫폼 접속', '온라인 교육 수강', '퀴즈 응시', '이수증 다운로드', '행정실 제출'],
+            requirements: ['학생 계정', '교육 수강 시간 3시간'],
+            deadline: '30일',
+            tips: '한 번에 모든 교육을 완료하지 말고 나누어 수강하세요.',
+            category: '교육'
+        },
+        {
+            taskType: '학적 변동 신청서',
+            steps: ['변동 사유 확인', '필요 서류 준비', '신청서 작성', '지도교수 승인', '행정실 제출'],
+            requirements: ['변동 사유서', '증빙 서류', '지도교수 서명'],
+            deadline: '14일',
+            tips: '변동 사유를 명확히 기재해야 승인률이 높습니다.',
+            category: '학적'
+        },
+        {
+            taskType: '장학금 신청',
+            steps: ['지원 자격 확인', '필요 서류 준비', '신청서 작성', '추천서 받기', '온라인 제출'],
+            requirements: ['성적 증명서', '가계 소득 증명서', '추천서'],
+            deadline: '21일',
+            tips: '소득 구간별 지원 금액이 다르니 미리 확인하세요.',
+            category: '장학'
+        },
+        {
+            taskType: '세미나 참석 확인서',
+            steps: ['세미나 참석', '참석 확인 받기', '확인서 작성', '행정실 제출'],
+            requirements: ['세미나 참석 증명', '발표자 서명'],
+            deadline: '7일',
+            tips: '세미나 후 바로 확인서를 받아두세요.',
+            category: '학술'
+        },
+        {
+            taskType: '연구실 안전교육 이수증',
+            steps: ['안전교육 예약', '교육 참석', '실습 완료', '시험 응시', '이수증 발급', '행정실 제출'],
+            requirements: ['신분증', '실습복', '안전화'],
+            deadline: '30일',
+            tips: '실습이 포함되므로 편한 복장으로 참석하세요.',
+            category: '안전'
+        },
+        {
+            taskType: '대학원 등록금 납부',
+            steps: ['등록금 고지서 확인', '납부 방법 선택', '온라인/방문 납부', '납부 확인서 보관'],
+            requirements: ['학생증', '신분증', '납부 계좌'],
+            deadline: '7일',
+            tips: '분할 납부도 가능하니 행정실에 문의하세요.',
+            category: '재정'
+        },
+        {
+            taskType: '연구과제 중간보고서',
+            steps: ['연구 진행사항 정리', '보고서 작성', '지도교수 검토', '수정 보완', '행정실 제출'],
+            requirements: ['연구 데이터', '참고문헌', '지도교수 검토 의견'],
+            deadline: '14일',
+            tips: '데이터 시각화를 포함하면 더 좋은 평가를 받습니다.',
+            category: '연구'
+        },
+        {
+            taskType: '학회 발표 신청서',
+            steps: ['학회 정보 확인', '발표 주제 선정', '초록 작성', '신청서 제출', '발표 자료 준비'],
+            requirements: ['연구 논문', '발표 초록', '등록비'],
+            deadline: '30일',
+            tips: '발표 경험이 취업에 도움이 되니 적극 참여하세요.',
+            category: '학술'
+        }
+    ];
+}
+
+// 업무 제목에서 처리 프로세스 정보 매칭
+function getProcessInfoForTask(taskContent) {
+    const processData = generateTaskProcessInfo();
+    
+    // 업무 제목에서 키워드 매칭
+    for (const process of processData) {
+        if (taskContent.includes(process.taskType.split(' ')[0]) || 
+            taskContent.includes(process.taskType)) {
+            return process;
+        }
+    }
+    
+    // 매칭되지 않으면 기본 프로세스 반환
+    return {
+        taskType: '일반 행정업무',
+        steps: ['업무 내용 확인', '필요 서류 준비', '신청서 작성', '행정실 제출'],
+        requirements: ['신분증', '관련 서류'],
+        deadline: '7일',
+        tips: '궁금한 사항은 행정실에 문의하세요.',
+        category: '일반'
+    };
+}
+
+// 처리 프로세스 정보를 포함한 포워딩 이메일 본문 생성
+function createEnhancedForwardingEmailBody(fromName, toName, taskContent, reason, processInfo) {
+    const processSteps = processInfo.steps.map((step, index) => `${index + 1}. ${step}`).join('\n');
+    const requirements = processInfo.requirements.join(', ');
+    
+    return `안녕하세요 ${toName}님,
+
+${fromName}입니다. 다음 업무를 포워딩드립니다.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 업무 정보
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• 업무 내용: ${taskContent}
+• 포워딩 사유: ${reason}
+• 카테고리: ${processInfo.category}
+• 예상 처리 기간: ${processInfo.deadline}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📝 처리 프로세스
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${processSteps}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 필요 서류
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${requirements}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 처리 팁
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${processInfo.tips}
+
+업무 처리에 도움이 되시길 바랍니다.
+문의사항이 있으시면 언제든 연락주세요.
+
+감사합니다.
+${fromName} 드림
+
+---
+이 메일은 Do Click 업무관리시스템에서 자동 생성되었습니다.`;
+}
+
+// 이메일 분석 시 처리 프로세스 정보 추출
+function extractProcessInfoFromEmail(subject, body) {
+    const processInfo = getProcessInfoForTask(subject);
+    
+    // 이메일 본문에서 추가 정보 추출
+    const extractedInfo = {
+        ...processInfo,
+        emailSubject: subject,
+        emailBody: body,
+        urgencyLevel: 'normal',
+        estimatedTime: processInfo.deadline,
+        documents: [],
+        contacts: []
+    };
+    
+    // 긴급성 분석
+    const urgentKeywords = ['긴급', '즉시', '오늘', '내일', '마감', '중요'];
+    if (urgentKeywords.some(keyword => subject.includes(keyword) || body.includes(keyword))) {
+        extractedInfo.urgencyLevel = 'high';
+    }
+    
+    // 이메일 본문에서 필요 서류 정보 추출
+    const documentPatterns = [
+        /([가-힣\s]+서|[가-힣\s]+증명서|[가-힣\s]+신청서|[가-힣\s]+확인서)/g,
+        /첨부.*?파일/g,
+        /제출.*?서류/g
+    ];
+    
+    documentPatterns.forEach(pattern => {
+        const matches = body.match(pattern);
+        if (matches) {
+            extractedInfo.documents.push(...matches);
+        }
+    });
+    
+    // 연락처 정보 추출
+    const contactPatterns = [
+        /\d{2,3}-\d{3,4}-\d{4}/g, // 전화번호
+        /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g // 이메일
+    ];
+    
+    contactPatterns.forEach(pattern => {
+        const matches = body.match(pattern);
+        if (matches) {
+            extractedInfo.contacts.push(...matches);
+        }
+    });
+    
+    return extractedInfo;
+}
+
+// Gmail 이메일 데이터를 처리 프로세스 정보와 함께 저장
+function processEmailWithEnhancedInfo(messageData, subject, date, from, senderName, body) {
+    // 처리 프로세스 정보 추출
+    const processInfo = extractProcessInfoFromEmail(subject, body);
+    
+    return {
+        id: messageData.id,
+        subject: subject,
+        date: new Date(date),
+        from: from,
+        senderName: senderName,
+        body: body.substring(0, 200) + (body.length > 200 ? '...' : ''), // 본문 미리보기
+        processInfo: processInfo, // 처리 프로세스 정보 추가
+        urgencyLevel: processInfo.urgencyLevel,
+        category: processInfo.category,
+        estimatedTime: processInfo.estimatedTime,
+        documents: processInfo.documents,
+        contacts: processInfo.contacts
+    };
+}
+
+// 샘플 이메일 생성 시에도 처리 프로세스 정보 포함
+function generateEnhancedDemoEmails(adminEmail) {
+    const sampleSubjects = [
+        '졸업논문 심사 신청서 제출 안내',
+        '학위수여식 참석 확인서 제출 요청', 
+        '연구윤리교육 이수 확인서 제출',
+        '학적 변동 신청서 제출 안내',
+        '장학금 신청 마감 공지',
+        '세미나 참석 확인서 제출',
+        '연구실 안전교육 이수증 제출 요청',
+        '대학원 등록금 납부 안내',
+        '연구과제 중간보고서 제출',
+        '학회 발표 신청서 제출 요청'
+    ];
+    
+    const senderNames = ['김행정', '이서무', '박학적', '최교무', '정연구', '한학과', '조서기'];
+    
+    const demoEmails = [];
+    const today = new Date();
+    
+    sampleSubjects.forEach((subject, index) => {
+        const emailDate = new Date(today);
+        emailDate.setDate(today.getDate() - (index + 1)); // 1일부터 10일 전까지 분산
+        
+        const senderName = senderNames[index % senderNames.length];
+        const body = `${subject}에 관한 상세 안내사항입니다. 마감일까지 제출해주시기 바랍니다.`;
+        
+        // 처리 프로세스 정보 포함
+        const processInfo = extractProcessInfoFromEmail(subject, body);
+        
+        demoEmails.push({
+            id: `demo_enhanced_${index}`,
+            subject: subject,
+            date: emailDate,
+            from: `${senderName} <${adminEmail}>`,
+            senderName: senderName,
+            body: body,
+            processInfo: processInfo,
+            urgencyLevel: processInfo.urgencyLevel,
+            category: processInfo.category,
+            estimatedTime: processInfo.estimatedTime,
+            documents: processInfo.documents,
+            contacts: processInfo.contacts
+        });
+    });
+    
+    console.log('🧪 향상된 샘플 이메일 생성 완료 (처리 프로세스 정보 포함):', demoEmails);
+    return demoEmails;
+}
+
+// 향상된 작업실 콘텐츠 표시 (처리 프로세스 정보 포함)
+function showEnhancedWorkspaceContent(taskContent, status, deadline, receiptDate, assignee, forwarding, processInfo) {
+    // 기본 작업실 내용 업데이트
+    $('#ws-task-content').text(taskContent);
+    $('#ws-status').text(status === 'checked' ? '완료' : '미완료');
+    $('#ws-deadline').text(deadline);
+    $('#ws-receipt-date').text(receiptDate);
+    $('#ws-assignee').text(assignee);
+    $('#ws-forwarding').text(forwarding);
+    
+    // 처리 프로세스 정보가 있으면 표시
+    if (processInfo) {
+        const processSteps = processInfo.steps.map((step, index) => 
+            `<div class="step">
+                <div class="step-number">${index + 1}</div>
+                <div class="step-content">
+                    <h6>${step}</h6>
+                </div>
+            </div>`
+        ).join('');
+        
+        const requirementsList = processInfo.requirements.map(req => `<li>${req}</li>`).join('');
+        
+        const enhancedProcessContent = `
+            <div class="enhanced-process-info">
+                <div class="process-header">
+                    <h5><i class="fas fa-tasks"></i> 업무 처리 프로세스</h5>
+                    <span class="badge badge-info">${processInfo.category}</span>
+                </div>
+                
+                <div class="process-steps">
+                    ${processSteps}
+                </div>
+                
+                <div class="process-requirements">
+                    <h6><i class="fas fa-clipboard-list"></i> 필요 서류</h6>
+                    <ul>${requirementsList}</ul>
+                </div>
+                
+                <div class="process-info-grid">
+                    <div class="info-item">
+                        <strong>예상 소요 시간:</strong> ${processInfo.estimatedTime}
+                    </div>
+                    <div class="info-item">
+                        <strong>긴급도:</strong> 
+                        <span class="badge ${processInfo.urgencyLevel === 'high' ? 'badge-danger' : 'badge-success'}">
+                            ${processInfo.urgencyLevel === 'high' ? '높음' : '보통'}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="process-tips">
+                    <h6><i class="fas fa-lightbulb"></i> 처리 팁</h6>
+                    <p class="tip-content">${processInfo.tips}</p>
+                </div>
+                
+                ${processInfo.documents && processInfo.documents.length > 0 ? `
+                <div class="process-documents">
+                    <h6><i class="fas fa-file-alt"></i> 발견된 문서</h6>
+                    <ul>
+                        ${processInfo.documents.map(doc => `<li>${doc}</li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+                
+                ${processInfo.contacts && processInfo.contacts.length > 0 ? `
+                <div class="process-contacts">
+                    <h6><i class="fas fa-phone"></i> 연락처 정보</h6>
+                    <ul>
+                        ${processInfo.contacts.map(contact => `<li>${contact}</li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+            </div>
+        `;
+        
+        $('#process-container').html(enhancedProcessContent);
+    } else {
+        // 처리 프로세스 정보가 없으면 기본 프로세스 표시
+        const basicProcessInfo = getProcessInfoForTask(taskContent);
+        showEnhancedWorkspaceContent(taskContent, status, deadline, receiptDate, assignee, forwarding, basicProcessInfo);
+    }
+    
+    // 작업실 콘텐츠 표시
+    $('#workspace-initial-message').hide();
+    $('#workspace-content').show();
+}
+
+// 기존 showWorkspaceContent 함수를 향상된 버전으로 업그레이드
+const originalShowWorkspaceContent = window.showWorkspaceContent;
+window.showWorkspaceContent = function(taskContent, status, deadline, receiptDate, assignee, forwarding) {
+    // 업무 내용에서 처리 프로세스 정보 가져오기
+    const processInfo = getProcessInfoForTask(taskContent);
+    
+    // 향상된 작업실 콘텐츠 표시
+    showEnhancedWorkspaceContent(taskContent, status, deadline, receiptDate, assignee, forwarding, processInfo);
+};
 

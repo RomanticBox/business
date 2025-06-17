@@ -56,7 +56,8 @@ function handleGoogleLogin() {
     // 실제 Google OAuth 초기화
     if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
         google.accounts.id.initialize({
-            client_id: '339844761529-r5uo6hvgb12n9l1qj5nhf2fjve4nc1pj.apps.googleusercontent.com', // 실제 Client ID
+            // client_id: '339844761529-r5uo6hvgb12n9l1qj5nhf2fjve4nc1pj.apps.googleusercontent.com',
+            client_id: '',
             callback: handleGoogleResponse,
             auto_select: false,
             cancel_on_tap_outside: false
