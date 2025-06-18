@@ -41,12 +41,20 @@ http://localhost:8000
 http://127.0.0.1:8000
 (도메인 주소도 함께 입력)
 ```
-6. '만들기' 버튼 누르
+6. '만들기' 버튼 누르기
 7. API 및 서비스 > 사용자 인증 정보 > OAuth 2.0 클라이언트 ID에서 '클라이언트 ID' 복사
 8. env.local의 CLIENT_ID에 붙여넣기
 ```env
 CLIENT_ID=여기에_복사한_Client_ID_입력
 ```
+
+## 실행
+```bash
+cd 2123_simply_amazed
+python -m http.server 8000
+```
+http://localhost:8000 또는 설정한 주소로 접속 후 기능 사용
+해당 방법을 사용 안할 시 Google API를 활용한 기능들은 사용할 수 없음
 
 ## ✅ 사용 가능한 주요 기능
 1. 기본 정보 입력 및 반영
